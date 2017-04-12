@@ -173,8 +173,6 @@ set(SRC_LIST_RUNNER
 )
 
 include_directories( "src/lib")
-add_definitions(-mavx)
-
 
 add_library(annis ${SRC_LIST_LIB})
 target_compile_features(annis PRIVATE ${needed_features})
