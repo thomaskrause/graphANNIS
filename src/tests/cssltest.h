@@ -78,7 +78,7 @@ protected:
   // Objects declared here can be used by all tests in the test case for Foo.
 };
 
-TEST_F(CSSLTest, FindConnectedSimple) {
+TEST_F(CSSLTest, SearchRangeRaw) {
 
   SkipList* testList = createSkipList(3, 5);
 
@@ -92,7 +92,7 @@ TEST_F(CSSLTest, FindConnectedSimple) {
   // execute a test search
   RangeSearchResult result = searchRange(testList, 50, 55);
 
-  ASSERT_EQ(5, result.count);
+  ASSERT_TRUE(result.found);
 
   ASSERT_GE(result.startIdx, 0);
   ASSERT_GE(result.endIdx, 0);
@@ -101,6 +101,45 @@ TEST_F(CSSLTest, FindConnectedSimple) {
 
   EXPECT_EQ(50, keys[result.startIdx]);
   EXPECT_EQ(55, keys[result.endIdx]);
+
+  result = searchRange(testList, 49, 55);
+
+  ASSERT_TRUE(result.found);
+
+  ASSERT_GE(result.startIdx, 0);
+  ASSERT_GE(result.endIdx, 0);
+  ASSERT_LT(result.startIdx, keys.size());
+  ASSERT_LT(result.endIdx, keys.size());
+
+  EXPECT_EQ(49, keys[result.startIdx]);
+  EXPECT_EQ(55, keys[result.endIdx]);
+
+  result = searchRange(testList, 50, 58);
+
+  ASSERT_TRUE(result.found);
+
+  ASSERT_GE(result.startIdx, 0);
+  ASSERT_GE(result.endIdx, 0);
+  ASSERT_LT(result.startIdx, keys.size());
+  ASSERT_LT(result.endIdx, keys.size());
+
+  EXPECT_EQ(50, keys[result.startIdx]);
+  EXPECT_EQ(58, keys[result.endIdx]);
+
+  result = searchRange(testList, 46, 200);
+
+  ASSERT_TRUE(result.found);
+
+  ASSERT_GE(result.startIdx, 0);
+  ASSERT_GE(result.endIdx, 0);
+  ASSERT_LT(result.startIdx, keys.size());
+  ASSERT_LT(result.endIdx, keys.size());
+
+  EXPECT_EQ(46, keys[result.startIdx]);
+  EXPECT_EQ(99, keys[result.endIdx]);
+
+  result = searchRange(testList, 200, 300);
+  ASSERT_FALSE(result.found);
 
 }
 
