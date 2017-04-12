@@ -322,7 +322,7 @@ std::pair<bool, nodeid_t> CSSLPrePostOrderStorage::CSSLPrePostIterator::next()
     const CSSLSearchRange& r = searchRanges.top();
 
     while(currentNodeIdx
-          && *currentNodeIdx < r.endIdx
+          && *currentNodeIdx <= r.endIdx
           && *currentNodeIdx < storage.order2node.size()
           && storage.order2node[*currentNodeIdx].second.pre < r.maximumPost)
     {
@@ -396,7 +396,7 @@ void CSSLPrePostOrderStorage::CSSLPrePostIterator::init()
 
     // find all pre-order entry that are between the source nodes pre and post order
     RangeSearchResult r = searchRange(storage.preIdx, order.pre, order.post);
-    if(r.count > 0)
+    if(r.found)
     {
       searchRanges.push({r.startIdx, r.endIdx, order.post, order.level});
     }
