@@ -10,9 +10,9 @@ ExternalProject_Add(
   UPDATE_COMMAND ""
   PATCH_COMMAND ""
 
-  GIT_REPOSITORY https://github.com/thomaskrause/cssl.git
-  GIT_TAG graphannis
-#  SOURCE_DIR "${CMAKE_SOURCE_DIR}/ext/cssl-master"
+#  GIT_REPOSITORY https://github.com/thomaskrause/cssl.git
+#  GIT_TAG graphannis
+  SOURCE_DIR "${CMAKE_SOURCE_DIR}/ext/cssl-graphannis"
   CMAKE_ARGS -DCMAKE_POSITION_INDEPENDENT_CODE=True -DCMAKE_INSTALL_PREFIX=${CSSL_PREFIX}
 
   TEST_COMMAND ""
