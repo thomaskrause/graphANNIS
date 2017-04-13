@@ -297,11 +297,16 @@ RangeSearchResult searchRange(SkipList* slist, uint32_t startKey, uint32_t endKe
   }
 
   proxy = slist->flane_pointers[rPos];
-  result.end = proxy->pointers[slist->skip - 1];
-  for (uint8_t i = 1; i < slist->skip; i++) {
-    if (endKey < proxy->keys[i]) {
-      result.end = proxy->pointers[i - 1];
-      break;
+  if(proxy == NULL) {
+    // the last element of the list is smaller than the end key, thus use it as result
+    result.end = slist->tail;
+  } else {
+    result.end = proxy->pointers[slist->skip - 1];
+    for (uint8_t i = 1; i < slist->skip; i++) {
+      if (endKey < proxy->keys[i]) {
+        result.end = proxy->pointers[i - 1];
+        break;
+      }
     }
   }
 
