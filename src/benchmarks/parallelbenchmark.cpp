@@ -488,7 +488,7 @@ class CSSLGUMFixture : public celero::TestFixture
 
 };
 
-BASELINE_F(FindConnected, BTree, CSSLGUMFixture, 0, 0)
+BASELINE_F(FindConnectedDirect, BTree, CSSLGUMFixture, 0, 0)
 {
   std::unique_ptr<EdgeIterator> it = storageBTree.findConnected(startNode, 1, 1000);
   unsigned int counter = 0;
@@ -499,7 +499,7 @@ BASELINE_F(FindConnected, BTree, CSSLGUMFixture, 0, 0)
   assert(counter == 19);
 }
 
-BENCHMARK_F(FindConnected, CSSL, CSSLGUMFixture, 0, 0)
+BENCHMARK_F(FindConnectedDirect, CSSL, CSSLGUMFixture, 0, 0)
 {
   std::unique_ptr<EdgeIterator> it = storageCSSL.findConnected(startNode, 1, 1000);
   unsigned int counter = 0;
@@ -508,6 +508,38 @@ BENCHMARK_F(FindConnected, CSSL, CSSLGUMFixture, 0, 0)
     counter++;
   }
   assert(counter == 19);
+}
+
+BASELINE_F(FindConnectedIndirect, BTree, CSSLGUMFixture, 0, 0)
+{
+  std::unique_ptr<EdgeIterator> it = storageBTree.findConnected(startNode, 1, 1000);
+  unsigned int counter = 0;
+  for(std::pair<bool, nodeid_t> item = it->next(); item.first; item = it->next())
+  {
+    // also find all connected items from this one
+    std::unique_ptr<EdgeIterator> itChild = storageBTree.findConnected(item.second, 1, 1000);
+    while(itChild->next().first)
+    {
+      counter++;
+    }
+  }
+  assert(counter == 73);
+}
+
+BENCHMARK_F(FindConnectedIndirect, CSSL, CSSLGUMFixture, 0, 0)
+{
+  std::unique_ptr<EdgeIterator> it = storageCSSL.findConnected(startNode, 1, 1000);
+  unsigned int counter = 0;
+  for(std::pair<bool, nodeid_t> item = it->next(); item.first; item = it->next())
+  {
+    // also find all connected items from this one
+    std::unique_ptr<EdgeIterator> itChild = storageCSSL.findConnected(item.second, 1, 1000);
+    while(itChild->next().first)
+    {
+      counter++;
+    }
+  }
+  assert(counter == 73);
 }
 
 
