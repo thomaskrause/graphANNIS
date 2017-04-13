@@ -398,7 +398,7 @@ void CSSLPrePostOrderStorage::CSSLPrePostIterator::init()
     RangeSearchResult r = searchRange(storage.preIdx, order.pre, order.post);
     if(r.found)
     {
-      searchRanges.push({r.startIdx, r.endIdx, order.post, order.level});
+      searchRanges.push({r.start->idx, r.end->idx, order.post, order.level});
     }
   }
   if(!searchRanges.empty())

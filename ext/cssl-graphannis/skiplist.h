@@ -37,6 +37,7 @@
 // data list node
 typedef struct DataNode {
   uint32_t key;
+  uint32_t idx;
   struct DataNode *next;
 } DataNode;
 
@@ -61,8 +62,8 @@ typedef struct {
 
 // result of a range query
 typedef struct {
-  size_t startIdx;
-  size_t endIdx;
+  DataNode* start;
+  DataNode* end;
   bool  found;
 } RangeSearchResult;
 

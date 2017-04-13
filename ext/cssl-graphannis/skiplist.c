@@ -67,6 +67,9 @@ void findAndInsertIntoProxyNode(SkipList* slist, DataNode* node) {
 // Inserts a new element into the given skip list (bulk insert)
 void insertElement(SkipList* slist, uint32_t key) {
   DataNode *new_node = newNode(key);
+
+  new_node->idx = slist->num_elements;
+
   bool nodeInserted = true;
   bool flaneInserted = false;
 
@@ -163,15 +166,8 @@ void resizeFastLanes(SkipList* slist) {
   uint32_t* new_flanes = malloc(sizeof(uint32_t) * new_size);
   ProxyNode** new_fpointers = malloc(sizeof(ProxyNode*) * level_items[0]);
 
-  // initialize new parts of arrays with placeholder values
   for (uint32_t i = slist->flane_items[slist->max_level - 1]; i < new_size; i++)
-  {
     new_flanes[i] = INT_MAX;
-  }
-  for (uint32_t i = slist->items_per_level[0]; i < level_items[0]; i++)
-  {
-    new_fpointers[i] = NULL;
-  }
 
   // copy from old flane to new flane
   for (int8_t level = slist->max_level - 1; level >= 0; level--)
@@ -238,8 +234,7 @@ RangeSearchResult searchRange(SkipList* slist, uint32_t startKey, uint32_t endKe
   // should be used as starting position for search
   __m256 avx_creg, res, avx_sreg;
   RangeSearchResult result;
-  uint32_t level;
-  uint32_t bitmask = 0;
+  uint32_t level, bitmask;
   uint32_t curPos = 0; uint32_t rPos = 0; uint32_t first = 0;
   uint32_t last = slist->items_per_level[slist->max_level - 1] - 1;
   uint32_t middle = 0;
@@ -273,27 +268,14 @@ RangeSearchResult searchRange(SkipList* slist, uint32_t startKey, uint32_t endKe
   result.found = false;
 
   ProxyNode* proxy = slist->flane_pointers[curPos - slist->starts_of_flanes[0]];
+  result.start = (DataNode*) proxy->pointers[slist->skip - 1]->next;
   for (uint8_t i = 0; i < slist->skip; i++) {
     if (startKey <= proxy->keys[i]) {
-      result.startIdx = ((curPos - start_of_flane) * slist->skip) + i;
+      result.start = proxy->pointers[i];
       result.found = true;
       break;
     }
   }
-
-  if(!result.found)
-   {
-     if(proxy->keys[slist->skip - 1] == INT_MAX || proxy->keys[slist->skip - 1] < startKey)
-     {
-       // no valid start position found in proxy and no next node available, thus we can't find anything
-       return result;
-     }
-     else
-     {
-       // set next node of end of proxy as starting point for the search
-       result.startIdx =  curPos - start_of_flane + slist->skip;
-     }
-   }
 
   // search for the range's last matching node
   avx_sreg = _mm256_castsi256_ps(_mm256_set1_epi32(endKey));
@@ -304,26 +286,23 @@ RangeSearchResult searchRange(SkipList* slist, uint32_t startKey, uint32_t endKe
         _mm256_loadu_si256((__m256i const *) &slist->flanes[curPos]));
     res      = _mm256_cmp_ps(avx_sreg, avx_creg, 30);
     bitmask  = _mm256_movemask_ps(res);
-    // break if segment not matched fully
     if (bitmask < 0xff) break;
     curPos += SIMD_SEGMENTS; rPos += SIMD_SEGMENTS;
     result.found = true;
   }
+  curPos--;rPos--;
   itemsInFlane += SIMD_SEGMENTS;
 
-  // iterate to the last valid position in the segment
   while (endKey >= slist->flanes[++curPos] && rPos < itemsInFlane) {
-      rPos++;
+    rPos++;
   }
-  // don't usr curPos after this loop
 
-  result.endIdx = rPos * slist->skip;
   proxy = slist->flane_pointers[rPos];
-  if(proxy != NULL) {
-    // find all additional items which are still inside the end of the range
-    for (uint8_t i = 0; i < slist->skip && proxy->keys[i] <= endKey; i++) {
-      result.endIdx = (rPos*slist->skip) + i;
-      result.found = true;
+  result.end = proxy->pointers[slist->skip - 1];
+  for (uint8_t i = 1; i < slist->skip; i++) {
+    if (endKey < proxy->keys[i]) {
+      result.end = proxy->pointers[i - 1];
+      break;
     }
   }
 

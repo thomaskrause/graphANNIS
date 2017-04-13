@@ -94,49 +94,49 @@ TEST_F(CSSLTest, SearchRangeRaw) {
 
   ASSERT_TRUE(result.found);
 
-  ASSERT_GE(result.startIdx, 0);
-  ASSERT_GE(result.endIdx, 0);
-  ASSERT_LT(result.startIdx, keys.size());
-  ASSERT_LT(result.endIdx, keys.size());
+  ASSERT_GE(result.start->idx, 0);
+  ASSERT_GE(result.end->idx, 0);
+  ASSERT_LT(result.start->idx, keys.size());
+  ASSERT_LT(result.end->idx, keys.size());
 
-  EXPECT_EQ(50, keys[result.startIdx]);
-  EXPECT_EQ(55, keys[result.endIdx]);
+  EXPECT_EQ(50, keys[result.start->idx]);
+  EXPECT_EQ(55, keys[result.end->idx]);
 
   result = searchRange(testList, 49, 55);
 
   ASSERT_TRUE(result.found);
 
-  ASSERT_GE(result.startIdx, 0);
-  ASSERT_GE(result.endIdx, 0);
-  ASSERT_LT(result.startIdx, keys.size());
-  ASSERT_LT(result.endIdx, keys.size());
+  ASSERT_GE(result.start->idx, 0);
+  ASSERT_GE(result.end->idx, 0);
+  ASSERT_LT(result.start->idx, keys.size());
+  ASSERT_LT(result.end->idx, keys.size());
 
-  EXPECT_EQ(49, keys[result.startIdx]);
-  EXPECT_EQ(55, keys[result.endIdx]);
+  EXPECT_EQ(49, keys[result.start->idx]);
+  EXPECT_EQ(55, keys[result.end->idx]);
 
   result = searchRange(testList, 50, 58);
 
   ASSERT_TRUE(result.found);
 
-  ASSERT_GE(result.startIdx, 0);
-  ASSERT_GE(result.endIdx, 0);
-  ASSERT_LT(result.startIdx, keys.size());
-  ASSERT_LT(result.endIdx, keys.size());
+  ASSERT_GE(result.start->idx, 0);
+  ASSERT_GE(result.end->idx, 0);
+  ASSERT_LT(result.start->idx, keys.size());
+  ASSERT_LT(result.end->idx, keys.size());
 
-  EXPECT_EQ(50, keys[result.startIdx]);
-  EXPECT_EQ(58, keys[result.endIdx]);
+  EXPECT_EQ(50, keys[result.start->idx]);
+  EXPECT_EQ(58, keys[result.end->idx]);
 
   result = searchRange(testList, 46, 200);
 
   ASSERT_TRUE(result.found);
 
-  ASSERT_GE(result.startIdx, 0);
-  ASSERT_GE(result.endIdx, 0);
-  ASSERT_LT(result.startIdx, keys.size());
-  ASSERT_LT(result.endIdx, keys.size());
+  ASSERT_GE(result.start->idx, 0);
+  ASSERT_GE(result.end->idx, 0);
+  ASSERT_LT(result.start->idx, keys.size());
+  ASSERT_LT(result.end->idx, keys.size());
 
-  EXPECT_EQ(46, keys[result.startIdx]);
-  EXPECT_EQ(99, keys[result.endIdx]);
+  EXPECT_EQ(46, keys[result.start->idx]);
+  EXPECT_EQ(99, keys[result.end->idx]);
 
   result = searchRange(testList, 200, 300);
   ASSERT_FALSE(result.found);
