@@ -292,7 +292,7 @@ RangeSearchResult searchRange(SkipList* slist, uint32_t startKey, uint32_t endKe
   }
   itemsInFlane += SIMD_SEGMENTS;
 
-  while (endKey >= slist->flanes[curPos++] && (rPos+1) < itemsInFlane) {
+  while (endKey >= slist->flanes[++curPos] && (rPos+1) < itemsInFlane) {
     rPos++;
   }
 
