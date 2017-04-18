@@ -141,6 +141,8 @@ TEST_F(CSSLTest, SearchRangeRaw) {
   result = searchRange(testList, 200, 300);
   ASSERT_FALSE(result.found);
 
+  CSSLPrePostOrderStorage::freeSkiplist(testList);
+
 }
 
 TEST_F(CSSLTest, FindConnected) {

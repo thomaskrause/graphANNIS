@@ -147,6 +147,9 @@ public:
         + sizeof(CSSLPrePostOrderStorage);
   }
 
+
+  static void freeSkiplist(SkipList* preIdx);
+
 private:
 
   btree::btree_multimap<nodeid_t, OrderEntry> node2order;
@@ -156,9 +159,6 @@ private:
   SkipList* preIdx;
   BTreeMultiAnnoStorage<Edge> edgeAnno;
 
-private:
-
-  static void freeSkiplist(SkipList* preIdx);
 
 };
 
