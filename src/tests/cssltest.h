@@ -24,6 +24,8 @@
 
 #include <memory>
 
+#include <map>
+
 extern "C" {
   #include <cssl/skiplist.h>
 }
@@ -84,8 +86,12 @@ TEST_F(CSSLTest, SearchRangeRaw) {
 
   std::vector<uint32_t> keys;
 
+  std::unordered_map<uint32_t, uint32_t> key2idx;
+
   for(uint32_t i=0; i < 100; i++) {
     keys.push_back(i);
+    // in this case the key equals the index, but this is not guaranteed
+    key2idx.insert({i, i});
     insertElement(testList, i);
   }
 
@@ -94,49 +100,41 @@ TEST_F(CSSLTest, SearchRangeRaw) {
 
   ASSERT_TRUE(result.found);
 
-  ASSERT_GE(result.start->idx, 0);
-  ASSERT_GE(result.end->idx, 0);
-  ASSERT_LT(result.start->idx, keys.size());
-  ASSERT_LT(result.end->idx, keys.size());
+  ASSERT_NE(key2idx.find(result.start->key), key2idx.end());
+  ASSERT_NE(key2idx.find(result.end->key), key2idx.end());
 
-  EXPECT_EQ(50, keys[result.start->idx]);
-  EXPECT_EQ(55, keys[result.end->idx]);
+  EXPECT_EQ(50, key2idx[result.start->key]);
+  EXPECT_EQ(55, key2idx[result.end->key]);
 
   result = searchRange(testList, 49, 55);
 
   ASSERT_TRUE(result.found);
 
-  ASSERT_GE(result.start->idx, 0);
-  ASSERT_GE(result.end->idx, 0);
-  ASSERT_LT(result.start->idx, keys.size());
-  ASSERT_LT(result.end->idx, keys.size());
+  ASSERT_NE(key2idx.find(result.start->key), key2idx.end());
+  ASSERT_NE(key2idx.find(result.end->key), key2idx.end());
 
-  EXPECT_EQ(49, keys[result.start->idx]);
-  EXPECT_EQ(55, keys[result.end->idx]);
+  EXPECT_EQ(49, key2idx[result.start->key]);
+  EXPECT_EQ(55, key2idx[result.end->key]);
 
   result = searchRange(testList, 50, 58);
 
   ASSERT_TRUE(result.found);
 
-  ASSERT_GE(result.start->idx, 0);
-  ASSERT_GE(result.end->idx, 0);
-  ASSERT_LT(result.start->idx, keys.size());
-  ASSERT_LT(result.end->idx, keys.size());
+  ASSERT_NE(key2idx.find(result.start->key), key2idx.end());
+  ASSERT_NE(key2idx.find(result.end->key), key2idx.end());
 
-  EXPECT_EQ(50, keys[result.start->idx]);
-  EXPECT_EQ(58, keys[result.end->idx]);
+  EXPECT_EQ(50, key2idx[result.start->key]);
+  EXPECT_EQ(58, key2idx[result.end->key]);
 
   result = searchRange(testList, 46, 200);
 
   ASSERT_TRUE(result.found);
 
-  ASSERT_GE(result.start->idx, 0);
-  ASSERT_GE(result.end->idx, 0);
-  ASSERT_LT(result.start->idx, keys.size());
-  ASSERT_LT(result.end->idx, keys.size());
+  ASSERT_NE(key2idx.find(result.start->key), key2idx.end());
+  ASSERT_NE(key2idx.find(result.end->key), key2idx.end());
 
-  EXPECT_EQ(46, keys[result.start->idx]);
-  EXPECT_EQ(99, keys[result.end->idx]);
+  EXPECT_EQ(46, key2idx[result.start->key]);
+  EXPECT_EQ(99, key2idx[result.end->key]);
 
   result = searchRange(testList, 200, 300);
   ASSERT_FALSE(result.found);

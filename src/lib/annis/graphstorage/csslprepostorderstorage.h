@@ -50,8 +50,8 @@ public:
   public:
     struct CSSLSearchRange
     {
-      size_t startIdx;
-      size_t endIdx;
+      DataNode* start;
+      DataNode* end;
       uint32_t maximumPost;
       int32_t startLevel;
     };
@@ -77,7 +77,7 @@ public:
     const bool uniqueCheck;
     btree::btree_set<nodeid_t> visited;
 
-    boost::optional<size_t> currentNodeIdx;
+    DataNode* currentNode;
   private:
     void init();
   };
@@ -153,8 +153,9 @@ public:
 private:
 
   btree::btree_multimap<nodeid_t, OrderEntry> node2order;
-  /** a vector sorted by the order of the node (like a flat map) */
-  std::vector<std::pair<nodeid_t, OrderEntry>> order2node;
+
+  /** a vector sorted by the order of the node */
+  std::unordered_map<uint32_t, std::pair<nodeid_t, OrderEntry>> order2node;
 
   SkipList* preIdx;
   BTreeMultiAnnoStorage<Edge> edgeAnno;

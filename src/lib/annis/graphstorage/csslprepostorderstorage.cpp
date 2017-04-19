@@ -150,24 +150,19 @@ void CSSLPrePostOrderStorage::copy(const annis::DB &db, const annis::ReadableGra
 
   } // end for each root
 
-  // add all node IDs to vector
-  order2node.reserve(node2order.size());
+
+  // add all pre-order to the sorted map and the hash map with the assoicated node ID
+  std::set<uint32_t> preOrders;
   for(const auto& e : node2order)
   {
-    order2node.push_back(e);
+    preOrders.insert(e.second.pre);
+    order2node.insert({e.second.pre, e});
   }
 
-  // sort the node ID vector by the pre-order
-  std::sort(order2node.begin(), order2node.end(),
-            [](std::pair<nodeid_t, OrderEntry> a, std::pair<nodeid_t, OrderEntry> b)
-  {
-    return a.second.pre < b.second.pre;
-  });
-
   // make sure to insert the entries to the preIdx in correct order
-  for(auto& e : order2node)
+  for(auto& e : preOrders)
   {
-    insertElement(preIdx, e.second.pre);
+    insertElement(preIdx, e);
   }
 
   stat = orig.getStatistics();
@@ -308,7 +303,7 @@ CSSLPrePostOrderStorage::CSSLPrePostIterator::CSSLPrePostIterator(
   : storage(storage), sourceNode(sourceNode), minDistance(minDistance), maxDistance(maxDistance),
     uniqueCheck(true),
 //    uniqueCheck(storage.getStatistics().valid && storage.getStatistics().rootedTree && storage.getStatistics().dfsVisitRatio <= 1.0 ? false : true),
-    currentNodeIdx(boost::none)
+    currentNode(nullptr)
 {
   init();
 }
@@ -321,16 +316,15 @@ std::pair<bool, nodeid_t> CSSLPrePostOrderStorage::CSSLPrePostIterator::next()
   {
     const CSSLSearchRange& r = searchRanges.top();
 
-    while(currentNodeIdx
-          && *currentNodeIdx <= r.endIdx
-          && *currentNodeIdx < storage.order2node.size()
-          && storage.order2node[*currentNodeIdx].second.pre < r.maximumPost)
+    while(currentNode != nullptr
+          && currentNode->key < r.maximumPost)
     {
-      const OrderEntry& currentOrder = storage.order2node[*currentNodeIdx].second;
+      const auto it = storage.order2node.find(currentNode->key);
+      const OrderEntry& currentOrder = it->second.second;
+      const nodeid_t& currentNodeID = it->second.first;
 
       unsigned int diffLevel = std::abs(currentOrder.level - r.startLevel);
 
-      const nodeid_t& currentNodeID = storage.order2node[*currentNodeIdx].first;
       // check post order and level as well
       if(currentOrder.post <= r.maximumPost && minDistance <= diffLevel && diffLevel <= maxDistance
          && (!uniqueCheck || visited.find(currentNodeID) == visited.end()))
@@ -344,26 +338,44 @@ std::pair<bool, nodeid_t> CSSLPrePostOrderStorage::CSSLPrePostIterator::next()
           visited.insert(result.second);
         }
 
-        (*currentNodeIdx)++;
+
+        if(currentNode == r.end)
+        {
+          currentNode = nullptr;
+        }
+        else
+        {
+          currentNode = currentNode->next;
+        }
+
         return result;
       }
       else if(currentOrder.pre < r.maximumPost)
       {
-        // proceed with the next entry in the range
-        (*currentNodeIdx)++;
+        if(currentNode == r.end)
+        {
+          currentNode = nullptr;
+        }
+        else
+        {
+          // proceed with the next entry in the range
+          currentNode = currentNode->next;
+        }
       }
       else
       {
         // abort searching in this range
         break;
       }
+
+
     } // end while range not finished yet
 
     // this range is finished, try next one
     searchRanges.pop();
     if(!searchRanges.empty())
     {
-      currentNodeIdx = searchRanges.top().startIdx;
+      currentNode = searchRanges.top().start;
     }
   }
 
@@ -377,7 +389,7 @@ void CSSLPrePostOrderStorage::CSSLPrePostIterator::reset()
     searchRanges.pop();
   }
   visited.clear();
-  currentNodeIdx = boost::none;
+  currentNode = nullptr;
   init();
 }
 
@@ -398,11 +410,11 @@ void CSSLPrePostOrderStorage::CSSLPrePostIterator::init()
     RangeSearchResult r = searchRange(storage.preIdx, order.pre, order.post);
     if(r.found)
     {
-      searchRanges.push({r.start->idx, r.end->idx, order.post, order.level});
+      searchRanges.push({r.start, r.end, order.post, order.level});
     }
   }
   if(!searchRanges.empty())
   {
-    currentNodeIdx = searchRanges.top().startIdx;
+    currentNode = searchRanges.top().start;
   }
 }
