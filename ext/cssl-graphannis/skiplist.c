@@ -163,8 +163,15 @@ void resizeFastLanes(SkipList* slist) {
   uint32_t* new_flanes = malloc(sizeof(uint32_t) * new_size);
   ProxyNode** new_fpointers = malloc(sizeof(ProxyNode*) * level_items[0]);
 
+  // initialize new parts of arrays with placeholder values
   for (uint32_t i = slist->flane_items[slist->max_level - 1]; i < new_size; i++)
+  {
     new_flanes[i] = INT_MAX;
+  }
+  for (uint32_t i = slist->items_per_level[0]; i < level_items[0]; i++)
+  {
+    new_fpointers[i] = NULL;
+  }
 
   // copy from old flane to new flane
   for (int8_t level = slist->max_level - 1; level >= 0; level--)
