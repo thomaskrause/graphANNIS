@@ -267,4 +267,14 @@ if(GRAPHANNIS_BUILD_BENCHMARKS)
   target_compile_features(${PARALLEL_BENCHMARK_EXEC} PRIVATE ${needed_features})
   target_link_libraries(${PARALLEL_BENCHMARK_EXEC} ${Celero_LIBRARIES} annis  )
 
+  # benchmarking CSSL against other implementations for finding a range in a sorted list
+  set(CSSL_BENCHMARK_SRC_LIST
+    src/benchmarks/csslbenchmark.cpp
+  )
+  set(CSSL_BENCHMARK_EXEC "bench_cssl")
+  add_executable(${CSSL_BENCHMARK_EXEC}  ${CSSL_BENCHMARK_SRC_LIST} )
+  add_dependencies(${CSSL_BENCHMARK_EXEC} Celero)
+  target_compile_features(${CSSL_BENCHMARK_EXEC} PRIVATE ${needed_features})
+  target_link_libraries(${CSSL_BENCHMARK_EXEC} ${Celero_LIBRARIES} annis  )
+
 endif()
