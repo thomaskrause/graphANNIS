@@ -33,7 +33,6 @@ SkipList* createSkipList(uint8_t maxLevel, uint8_t skip) {
     slist->flane_items[level] = 0;
 
   buildFastLanes(slist);
-  srand(0);
 
   return slist;
 }

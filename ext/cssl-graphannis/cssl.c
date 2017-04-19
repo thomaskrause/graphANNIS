@@ -49,6 +49,9 @@ int main( int argc, const char* argv[] ) {
   }
 
   SkipList* slist = createSkipList(9, 5);
+
+  srand(0);
+
   uint32_t n = atoi(argv[1]);
   uint32_t* keys = malloc(sizeof(uint32_t) * n);
 
