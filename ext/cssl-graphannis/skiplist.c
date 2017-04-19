@@ -67,10 +67,6 @@ void findAndInsertIntoProxyNode(SkipList* slist, DataNode* node) {
 void insertElement(SkipList* slist, uint32_t key) {
   DataNode *new_node = newNode(key);
 
-#ifdef CSSL_EXTRA_NODE_INFO
-  new_node->idx = slist->num_elements;
-#endif
-
   bool nodeInserted = true;
   bool flaneInserted = false;
 

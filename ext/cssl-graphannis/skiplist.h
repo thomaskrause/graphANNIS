@@ -23,8 +23,6 @@
 #define TOP_LANE_BLOCK 16
 // number of keys that can be stored in one SIMD register
 #define SIMD_SEGMENTS 8
-// if defined this add another field to the DataNode struct that contains the index of the found node.
-#define CSSL_EXTRA_NODE_INFO
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -40,9 +38,6 @@
 typedef struct DataNode {
   uint32_t key;
   struct DataNode *next;
-#ifdef CSSL_EXTRA_NODE_INFO
-    uint32_t idx;
-#endif
 } DataNode;
 
 // proxy node
