@@ -150,6 +150,8 @@ public:
 
   static void freeSkiplist(SkipList* preIdx);
 
+  static uint8_t calculateSkiplistLevel(size_t numOfElements, uint8_t skip);
+
 private:
 
   btree::btree_multimap<nodeid_t, OrderEntry> node2order;

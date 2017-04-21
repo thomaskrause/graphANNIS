@@ -44,22 +44,8 @@ void CSSLPrePostOrderStorage::copy(const annis::DB &db, const annis::ReadableGra
   {
     expectedNumOfOrders = expectedNumOfOrders * orig.getStatistics().dfsVisitRatio;
   }
-  // The highest lane should have a size of 16, thus calculate the number of skips we need in the highest line to reach
-  // this size.
-  double highestLaneSkip = (expectedNumOfOrders/16.0);
-  double level = std::ceil(log(highestLaneSkip) / log(5));
-  if(level <= 1.0)
-  {
-    // minimum is 2 levels
-    level = 2.0;
-  }
-  //std::cout << "Using level " << level << " for skiplist" << std::endl;
-  uint8_t levelCasted = std::numeric_limits<uint8_t>::max();
-  if(level <levelCasted)
-  {
-    levelCasted = static_cast<uint8_t>(level);
-  }
-  preIdx = createSkipList(levelCasted, 5);
+  uint8_t bestLevel = calculateSkiplistLevel(expectedNumOfOrders, 5);
+  preIdx = createSkipList(bestLevel, 5);
 
   // find all roots of the component
   std::set<nodeid_t> roots;
@@ -205,6 +191,29 @@ void CSSLPrePostOrderStorage::freeSkiplist(SkipList* slist)
 
     free(slist);
   }
+}
+
+uint8_t CSSLPrePostOrderStorage::calculateSkiplistLevel(size_t numOfElements, uint8_t skip)
+{
+  // The highest lane should have a size of 16, thus calculate the number of skips we need in the highest line to reach
+  // this size.
+  // The +1 is because the skiplist will be resized as soon as the last fitting element is inserted and we want
+  // to avoid this.
+  double highestLaneSkip = std::ceil((numOfElements+1)/16.0);
+  double level = std::ceil(log(highestLaneSkip) / log(skip));
+  if(level <= 1.0)
+  {
+    // minimum is 2 levels
+    level = 2.0;
+  }
+
+  uint8_t levelCasted = std::numeric_limits<uint8_t>::max();
+  if(level <levelCasted)
+  {
+    levelCasted = static_cast<uint8_t>(level);
+  }
+
+  return levelCasted;
 }
 
 void CSSLPrePostOrderStorage::clear()

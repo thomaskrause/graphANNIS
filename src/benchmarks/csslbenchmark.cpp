@@ -8,6 +8,14 @@
 #include <set>
 #include <google/btree_set.h>
 
+#ifdef ENABLE_VALGRIND
+  #include <valgrind/callgrind.h>
+#else
+  #define CALLGRIND_STOP_INSTRUMENTATION
+
+  #define CALLGRIND_START_INSTRUMENTATION
+#endif // ENABLE_VALGRIND
+
 CELERO_MAIN
 
 class BaseFixture : public celero::TestFixture
@@ -24,10 +32,13 @@ public:
   {
       std::vector<std::pair<int64_t, uint64_t>> problemSpace;
 
-      problemSpace.push_back({16000, 0});
-      problemSpace.push_back({160000, 0});
-      problemSpace.push_back({1600000, 0});
-//      problemSpace.push_back({16000000, 0});
+      problemSpace.push_back({100, 0});
+      problemSpace.push_back({1000, 0});
+      problemSpace.push_back({10000, 0});      
+      problemSpace.push_back({50000, 0});
+      problemSpace.push_back({75000, 0});
+      problemSpace.push_back({100000, 0});
+
 
       return problemSpace;
   }
@@ -82,12 +93,15 @@ public:
   /// Before each run, build a vector of random integers.
   virtual void setUp(int64_t experimentValue) override
   {
+    CALLGRIND_STOP_INSTRUMENTATION;
     BaseFixture::setUp(experimentValue);
 
     for (auto o : keys)
     {
       container.insert(o);
     }
+
+    CALLGRIND_START_INSTRUMENTATION;
   }
 
   std::multiset<uint32_t> container;
@@ -104,12 +118,15 @@ public:
   /// Before each run, build a vector of random integers.
   virtual void setUp(int64_t experimentValue) override
   {
+    CALLGRIND_STOP_INSTRUMENTATION;
     BaseFixture::setUp(experimentValue);
 
     for (auto o : keys)
     {
       container.insert(o);
     }
+
+    CALLGRIND_START_INSTRUMENTATION;
   }
 
   btree::btree_multiset<uint32_t> container;
@@ -127,15 +144,20 @@ public:
   /// Before each run, build a vector of random integers.
   virtual void setUp(int64_t experimentValue) override
   {
+    CALLGRIND_STOP_INSTRUMENTATION;
+
     BaseFixture::setUp(experimentValue);
 
     annis::CSSLPrePostOrderStorage::freeSkiplist(slist);
 
-    slist = createSkipList(9, 5);
+    uint8_t bestLevel = annis::CSSLPrePostOrderStorage::calculateSkiplistLevel(experimentValue, 10);
+    slist = createSkipList(bestLevel, 10);
     for (auto o : keys)
     {
       insertElement(slist, o);
     }
+
+    CALLGRIND_START_INSTRUMENTATION;
   }
 
   virtual ~CSSLFixture()
