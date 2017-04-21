@@ -156,7 +156,6 @@ private:
 
   btree::btree_multimap<nodeid_t, OrderEntry> node2order;
 
-  /** a vector sorted by the order of the node */
   std::unordered_map<uint32_t, std::pair<nodeid_t, OrderEntry>> order2node;
 
   SkipList* preIdx;
