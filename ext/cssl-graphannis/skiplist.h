@@ -17,7 +17,7 @@
 #ifndef __SkipList_H
 #define __SkipList_H
 
-#define MAX_SKIP 5
+#define MAX_SKIP 10
 // initial size of the highest fast lane with number
 // of keys that fit into one cache line
 #define TOP_LANE_BLOCK 16
