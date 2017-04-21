@@ -678,11 +678,11 @@ void DB::convertComponent(Component c, std::string impl)
 {
   map<Component, std::shared_ptr<ReadableGraphStorage>>::const_iterator
       it = edges.container.find(c);
-  if(it != edges.container.end())
+  if(it != edges.container.end() && it->second)
   {
     std::shared_ptr<ReadableGraphStorage> oldStorage = it->second;
 
-    if(!(oldStorage->getStatistics().valid))
+    if (!(oldStorage->getStatistics().valid))
     {
       oldStorage->calculateStatistics(strings);
     }
@@ -690,6 +690,7 @@ void DB::convertComponent(Component c, std::string impl)
     std::string currentImpl = edges.registry.getName(oldStorage);
     if(impl == "")
     {
+      // no manual implementation given as argument, automatically determine the best one.
       impl = edges.registry.getOptimizedImpl(c, oldStorage->getStatistics());
     }
     std::shared_ptr<ReadableGraphStorage> newStorage = oldStorage;

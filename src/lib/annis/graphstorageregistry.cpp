@@ -19,6 +19,7 @@
 #include <annis/graphstorage/adjacencyliststorage.h>  // for AdjacencyListSt...
 #include <annis/graphstorage/linearstorage.h>         // for LinearStorage
 #include <annis/graphstorage/prepostorderstorage.h>   // for PrePostOrderSto...
+#include <annis/graphstorage/csslprepostorderstorage.h>
 #include <cstdint>                                    // for uint32_t, int32_t
 #include <memory>                                     // for unique_ptr, dyn...
 #include <utility>                                    // for pair
@@ -47,6 +48,7 @@ const std::string GraphStorageRegistry::prepostorderO32L32 = "prepostorder";
 const std::string GraphStorageRegistry::prepostorderO32L8 = "prepostorderO32L8";
 const std::string GraphStorageRegistry::prepostorderO16L32 = "prepostorderO16L32";
 const std::string GraphStorageRegistry::prepostorderO16L8 = "prepostorderO16L8";
+const std::string GraphStorageRegistry::csslprepostorder = "csslprepostorder";
 const std::string GraphStorageRegistry::fallback = "fallback";
 
 GraphStorageRegistry::GraphStorageRegistry()
@@ -73,6 +75,10 @@ std::string annis::GraphStorageRegistry::getName(std::weak_ptr<const ReadableGra
     else if(std::dynamic_pointer_cast<const LinearP8>(db) != nullptr)
     {
       return linearP8;
+    }
+    else if(std::dynamic_pointer_cast<const CSSLPrePostOrderStorage >(db) != nullptr)
+    {
+      return csslprepostorder;
     }
     else if(std::dynamic_pointer_cast<const PrePostOrderO32L32>(db) != nullptr)
     {
@@ -111,6 +117,10 @@ std::unique_ptr<ReadableGraphStorage> GraphStorageRegistry::createGraphStorage(s
   else if(name == linearP8)
   {
     return std::unique_ptr<ReadableGraphStorage>(new LinearP8());
+  }
+  else if(name == csslprepostorder)
+  {
+    return std::unique_ptr<ReadableGraphStorage>(new CSSLPrePostOrderStorage());
   }
   else if(name == prepostorderO32L32)
   {

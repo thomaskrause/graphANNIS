@@ -49,6 +49,7 @@ public:
   static const std::string prepostorderO32L8;
   static const std::string prepostorderO16L32;
   static const std::string prepostorderO16L8;
+  static const std::string csslprepostorder;
   static const std::string fallback;
 
 private:

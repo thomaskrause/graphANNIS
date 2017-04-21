@@ -4,6 +4,8 @@ cmake_minimum_required(VERSION 3.2)
 set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 set(GLOBAL_OUTPUT_PATH ${PROJECT_BINARY_DIR}/output)
 
+set(ENABLE_VALGRIND FALSE CACHE BOOL "Allow to turn Valgrind instrumentation on or off for some parts of the code")
+
 # make sure a build type is selected
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose the type of build, options are: Debug Release RelWithDebInfo MinSizeRel."
@@ -23,6 +25,7 @@ include(cmake/humblelogging.cmake)
 include(cmake/re2.cmake)
 include(cmake/celero.cmake)
 include(cmake/googletest.cmake)
+include(cmake/cssl.cmake)
 
 link_directories(${GLOBAL_OUTPUT_PATH})
 
@@ -71,6 +74,7 @@ set(IncludeFiles
   src/lib/annis/json/json-forwards.h
   src/lib/annis/db.h
   src/lib/annis/dbloader.h
+  src/lib/annis/graphstorage/csslprepostorderstorage.h
   src/lib/annis/graphstorage/prepostorderstorage.h
   src/lib/annis/graphstorage/adjacencyliststorage.h
   src/lib/annis/graphstorage/graphstorage.h
@@ -123,6 +127,7 @@ set(SRC_LIST_LIB
   src/lib/annis/dbloader.cpp
   src/lib/annis/wrapper.cpp
   src/lib/annis/graphstorage/adjacencyliststorage.cpp
+  src/lib/annis/graphstorage/csslprepostorderstorage.cpp
   src/lib/annis/graphstorage/prepostorderstorage.cpp
   src/lib/annis/graphstorage/linearstorage.cpp
   src/lib/annis/graphstorage/graphstorage.cpp
@@ -168,20 +173,23 @@ set(SRC_LIST_RUNNER
 )
 
 include_directories( "src/lib")
+add_definitions(-mavx)
+
 
 add_library(annis ${SRC_LIST_LIB})
 target_compile_features(annis PRIVATE ${needed_features})
 set_property(TARGET annis PROPERTY POSITION_INDEPENDENT_CODE TRUE)
+set_property(TARGET annis PROPERTY C_STANDARD 99)
 # newer Boost serialization versions are otherwise incompatible with BTree
 add_definitions(-DBOOST_NO_CXX11_HDR_UNORDERED_MAP -DBOOST_NO_CXX11_HDR_UNORDERED_SET)
 if (MSVC)
 	# the min/max defines get in our way when using std::min/std::max
     add_definitions(/DNOMINMAX)
 elseif ( CMAKE_COMPILER_IS_GNUCC AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 5.1.0 )
-    set_property( TARGET annis APPEND_STRING PROPERTY COMPILE_FLAGS -Wsuggest-override )
+    target_compile_options(annis PRIVATE -Wsuggest-override)
 endif (MSVC)
 
-target_link_libraries(annis ${HumbleLogging_LIBRARIES} ${Boost_LIBRARIES} ${RE2_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(annis ${HumbleLogging_LIBRARIES} ${Boost_LIBRARIES} ${RE2_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${CSSL_LIBRARIES})
 add_dependencies(annis HumbleLogging)
 add_dependencies(annis RE2)	
 
@@ -219,6 +227,7 @@ set(TEST_SRC_LIST
   src/tests/SearchTestGUM.h
   src/tests/LoadTest.h
   src/tests/SearchTestTiger.h
+  src/tests/cssltest.h
   src/tests/testmain.cpp
 )
 
@@ -228,7 +237,7 @@ add_executable(${TEST_EXEC}  ${TEST_SRC_LIST} )
 add_dependencies(${TEST_EXEC} GoogleTest)
 
 target_compile_features(${TEST_EXEC} PRIVATE ${needed_features})
-target_link_libraries(${TEST_EXEC} annis ${GoogleTest_LIBRARIES})
+target_link_libraries(${TEST_EXEC} ${GoogleTest_LIBRARIES} annis)
 add_test( ${TEST_EXEC} ${TEST_EXEC} )
 
 
@@ -239,6 +248,11 @@ if(GRAPHANNIS_BUILD_BENCHMARKS)
     src/benchmarks/dynamicbenchmark.cpp
     src/benchmarks/benchmarkmain.cpp
   )
+
+  if(ENABLE_VALGRIND)
+    add_definitions(-DENABLE_VALGRIND=1)
+  endif()
+
   set(ANNIS_BENCHMARK_EXEC "bench_annisqueries")
   add_executable(${ANNIS_BENCHMARK_EXEC}  ${ANNIS_BENCHMARK_SRC_LIST} )
   add_dependencies(${ANNIS_BENCHMARK_EXEC} Celero)

@@ -30,6 +30,9 @@
 
 #include <annis/util/threadpool.h>
 
+#include <annis/graphstorage/prepostorderstorage.h>
+#include <annis/graphstorage/csslprepostorderstorage.h>
+
 #ifdef ENABLE_VALGRIND
   #include <valgrind/callgrind.h>
 #else
@@ -170,6 +173,8 @@ class GUMFixture : public celero::TestFixture
 
 
 };
+
+
 
 #define COUNT_BASELINE(group) \
   BASELINE_F(group, N0, GUMFixture, 0, 0) \
@@ -427,5 +432,82 @@ BENCHMARK(MatchQueue, List, 0, 0)
   }
 }
 
+class CSSLGUMFixture : public celero::TestFixture
+{
+    public:
+        CSSLGUMFixture()
+        {
+        }
+
+        /*
+        virtual std::vector<std::pair<int64_t, uint64_t>> getExperimentValues() const override
+        {
+            std::vector<std::pair<int64_t, uint64_t>> problemSpace;
+
+            for(int64_t i=1; i <= std::thread::hardware_concurrency(); i++)
+            {
+              problemSpace.push_back(std::make_pair(i, uint64_t(0)));
+            }
+            return problemSpace;
+        }
+        */
+
+
+        /// Before each run, build a vector of random integers.
+        virtual void setUp(int64_t experimentValue)
+        {
+          CALLGRIND_STOP_INSTRUMENTATION;
+          char* testDataEnv = std::getenv("ANNIS4_TEST_DATA");
+          std::string dataDir("data");
+          if (testDataEnv != NULL) {
+            dataDir = testDataEnv;
+          }
+          db.load(dataDir + "/GUM", true);
+
+          std::shared_ptr<const ReadableGraphStorage> orig =
+              db.edges.getGraphStorage(ComponentType::DOMINANCE, "const", "");
+          assert(orig);
+          storageBTree.copy(db, *orig);
+          storageCSSL.copy(db, *orig);
+
+          Query q(db);
+          q.addNode(std::make_shared<ExactAnnoValueSearch>(db, "cat", "ROOT"));
+          if(q.next())
+          {
+            startNode = q.getCurrent()[0].node;
+          }
+
+          CALLGRIND_START_INSTRUMENTATION;
+        }
+
+        DB db;
+        annis::PrePostOrderStorage<uint32_t, int32_t> storageBTree;
+        annis::CSSLPrePostOrderStorage storageCSSL;
+
+        nodeid_t startNode;
+
+};
+
+BASELINE_F(FindConnected, BTree, CSSLGUMFixture, 0, 0)
+{
+  std::unique_ptr<EdgeIterator> it = storageBTree.findConnected(startNode, 1, 1000);
+  unsigned int counter = 0;
+  while(it->next().first)
+  {
+    counter++;
+  }
+  assert(counter == 19);
+}
+
+BENCHMARK_F(FindConnected, CSSL, CSSLGUMFixture, 0, 0)
+{
+  std::unique_ptr<EdgeIterator> it = storageCSSL.findConnected(startNode, 1, 1000);
+  unsigned int counter = 0;
+  while(it->next().first)
+  {
+    counter++;
+  }
+  assert(counter == 19);
+}
 
 

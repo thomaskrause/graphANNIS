@@ -1,0 +1,23 @@
+########
+# CSSL #
+########
+
+set(CSSL_PREFIX ${GLOBAL_OUTPUT_PATH}/cssl)
+
+ExternalProject_Add(
+  CSSL
+
+  UPDATE_COMMAND ""
+  PATCH_COMMAND ""
+
+  GIT_REPOSITORY https://github.com/thomaskrause/cssl.git
+  GIT_TAG graphannis
+#  SOURCE_DIR "${CMAKE_SOURCE_DIR}/ext/cssl-master"
+  CMAKE_ARGS -DCMAKE_POSITION_INDEPENDENT_CODE=True -DCMAKE_INSTALL_PREFIX=${CSSL_PREFIX}
+
+  TEST_COMMAND ""
+)
+
+set(CSSL_INCLUDE_DIRS "${CSSL_PREFIX}/include")
+set(CSSL_LIBRARIES "${CSSL_PREFIX}/lib/${CMAKE_SHARED_LIBRARY_PREFIX}cssl${CMAKE_STATIC_LIBRARY_SUFFIX}")
+include_directories(SYSTEM ${CSSL_INCLUDE_DIRS})

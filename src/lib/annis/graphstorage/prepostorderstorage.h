@@ -125,7 +125,9 @@ public:
                     const unsigned int& minDistance,
                     const unsigned int& maxDistance)
       : storage(storage), startNode(startNode),
-        minDistance(minDistance), maxDistance(maxDistance)
+        minDistance(minDistance), maxDistance(maxDistance),
+        uniqueCheck(true)
+//        uniqueCheck(storage.getStatistics().valid && storage.getStatistics().rootedTree && storage.getStatistics().dfsVisitRatio <= 1.0 ? false : true)
     {
       init();
     }
@@ -150,13 +152,16 @@ public:
 
           // check post order and level as well
           if(currentPost <= maximumPost && minDistance <= diffLevel && diffLevel <= maxDistance
-             && visited.find(currentNode->second) == visited.end())
+             && (!uniqueCheck || visited.find(currentNode->second) == visited.end()))
           {
             // success
             result.first = true;
             result.second = currentNode->second;
 
-            visited.insert(result.second);
+            if(uniqueCheck)
+            {
+              visited.insert(result.second);
+            }
 
             currentNode++;
             return result;
@@ -212,6 +217,7 @@ public:
     std::stack<SearchRangeSpec, std::list<SearchRangeSpec> > ranges;
     OrderIt currentNode;
 
+    const bool uniqueCheck;
     btree::btree_set<nodeid_t> visited;
 
   private:

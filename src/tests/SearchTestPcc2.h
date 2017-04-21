@@ -62,6 +62,8 @@ protected:
     bool loadedDB = db.load(dataDir + "/pcc2");
     EXPECT_EQ(true, loadedDB);
 
+    db.optimizeAll();
+
     char* testQueriesEnv = std::getenv("ANNIS4_TEST_QUERIES");
     std::string globalQueryDir("queries");
     if (testQueriesEnv != NULL) {
@@ -185,7 +187,7 @@ TEST_F(SearchTestPcc2, TestQueryOverlap1) {
   ASSERT_TRUE((bool) q);
 
   unsigned int counter = 0;
-  while (q->next()) {
+  while (q->next() && counter < 100) {
     auto m = q->getCurrent();
     HL_INFO(logger, (boost::format("match\t%1%\t%2%") % db.getNodeName(m[0].node) % db.getNodeName(m[1].node)).str());
     counter++;
@@ -200,7 +202,7 @@ TEST_F(SearchTestPcc2, TestQueryOverlap2) {
   ASSERT_TRUE((bool) q);
   
   unsigned int counter = 0;
-  while (q->next()) {
+  while (q->next() && counter < 100) {
     std::vector<Match> m = q->getCurrent();
     HL_INFO(logger, (boost::format("match\t%1%\t%2%") % db.getNodeName(m[0].node) % db.getNodeName(m[1].node)).str());
     counter++;

@@ -72,6 +72,8 @@ protected:
     bool loadedDB = db.load(dataDir + "/GUM", true);
     EXPECT_EQ(true, loadedDB);
 
+    db.optimizeAll();
+
     char* testQueriesEnv = std::getenv("ANNIS4_TEST_QUERIES");
     std::string globalQueryDir("queries");
     if (testQueriesEnv != NULL) {

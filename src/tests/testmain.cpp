@@ -23,6 +23,7 @@
 #include "SearchTestParlament.h"
 #include "SearchTestGUM.h"
 #include "CorpusStorageManagerTest.h"
+#include "cssltest.h"
 
 int main(int argc, char **argv)
 {
