@@ -19,6 +19,8 @@
 
 #include "dynamicbenchmark.h"
 
+#include <boost/algorithm/string.hpp>
+
 #include <annis/util/threadpool.h>
 
 using namespace annis;
@@ -53,7 +55,7 @@ int main(int argc, char **argv) {
         DynamicBenchmark benchmark(subdir, corpusPath, corpusName
           , true);
 
-        unsigned int numOfCPUs = std::thread::hardware_concurrency();
+        unsigned int numOfCPUs = 1; //std::thread::hardware_concurrency();
         std::shared_ptr<ThreadPool> sharedThreadPool = std::make_shared<ThreadPool>(numOfCPUs);
 
         for(int i=0; i <= numOfCPUs; i += 2)
@@ -63,6 +65,22 @@ int main(int argc, char **argv) {
           config.numOfBackgroundTasks = i;
           benchmark.registerFixture("Jobs_" + std::to_string(i), config);
         }
+
+        // add a benchmark where each prepost-order impl is replaced with CSSL
+        QueryConfig csslConfig;
+        DB tmpDB;
+        tmpDB.load(corpusPath, false);
+        for(const Component& c : tmpDB.getAllComponents())
+        {
+          std::string origImplName = GraphStorageRegistry::getName(tmpDB.edges.getGraphStorage(c));
+          if(boost::starts_with(origImplName, "prepost"))
+          {
+            csslConfig.overrideImpl[c] = GraphStorageRegistry::csslprepostorder;
+            //std::cout << "Replacing component " << c.layer << ":" << c.name << " with CSSL in corpus " << corpusName << std::endl;
+          }
+        }
+        benchmark.registerFixture("CSSL", csslConfig);
+
 
       }
       itFiles++;
