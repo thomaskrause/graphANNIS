@@ -728,6 +728,7 @@ void DB::optimizeAll(const std::map<Component, string>& manualExceptions)
     }
     else
     {
+//      std::cout << "Converting component " << c.layer << ":" << c.name << " to manual optimized " << find->second << std::endl;
       convertComponent(c, find->second);
     }
   }

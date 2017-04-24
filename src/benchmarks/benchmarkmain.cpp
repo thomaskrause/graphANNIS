@@ -76,7 +76,7 @@ int main(int argc, char **argv) {
           if(boost::starts_with(origImplName, "prepost"))
           {
             csslConfig.overrideImpl[c] = GraphStorageRegistry::csslprepostorder;
-            //std::cout << "Replacing component " << c.layer << ":" << c.name << " with CSSL in corpus " << corpusName << std::endl;
+//            std::cout << "Replacing component " << c.layer << ":" << c.name << " with CSSL in corpus " << corpusName << std::endl;
           }
         }
         benchmark.registerFixture("CSSL", csslConfig);

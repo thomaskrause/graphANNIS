@@ -85,6 +85,15 @@ namespace annis {
     : corpusPath(corpusPath), config(config),
     json(json), benchmarkName(benchmarkName), counter(0),
     expectedCountByExp(expectedCount), currentExperimentValue(0) {
+
+      if(!config.overrideImpl.empty())
+      {
+        if(auto dbPtr = getDB().lock())
+        {
+          DB& db = *dbPtr ;
+          db.optimizeAll(config.overrideImpl);
+        }
+      }
     }
 
     const std::weak_ptr<DB> getDB() {
