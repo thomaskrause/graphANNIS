@@ -99,7 +99,7 @@ public:
   }
 
 private:
-  std::unordered_map<std::uint32_t, std::string> byID;
+  btree::btree_map<std::uint32_t, std::string> byID;
   btree::btree_map<std::string, std::uint32_t> byValue;
 
 };
