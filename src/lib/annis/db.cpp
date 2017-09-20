@@ -273,8 +273,7 @@ void DB::loadGraphStorages(string dirPath, bool preloadComponents)
           // only load the graph storage with the empty name if there is data for it
           if(boost::filesystem::is_regular_file(inputFile))
           {
-            // always pre-load the PART_OF_SUBCORPUS edges so that the getNodePath() function can be const and still works
-            if(preloadComponents || (emptyNameComponent.type == ComponentType::PART_OF_SUBCORPUS))
+            if(preloadComponents)
             {
               HL_DEBUG(logger, (boost::format("loading component %1%")
                                % debugComponentString(emptyNameComponent)).str());
