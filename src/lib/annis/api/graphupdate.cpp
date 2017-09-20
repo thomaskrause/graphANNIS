@@ -24,30 +24,30 @@ GraphUpdate::GraphUpdate()
 {
 }
 
-void GraphUpdate::addNode(std::string name, std::string type)
+void GraphUpdate::addNode(std::string path, std::string type)
 {
   std::shared_ptr<AddNodeEvent> evt = std::make_shared<AddNodeEvent>();
   evt->changeID = lastConsistentChangeID + diffs.size() + 1;
-  evt->nodeName = name;
+  evt->nodePath = path;
   evt->nodeType = type;
 
   diffs.push_back(evt);
 }
 
-void GraphUpdate::deleteNode(std::string name)
+void GraphUpdate::deleteNode(std::string path)
 {
   std::shared_ptr<DeleteNodeEvent> evt = std::make_shared<DeleteNodeEvent>();
   evt->changeID = lastConsistentChangeID + diffs.size() + 1;
-  evt->nodeName = name;
+  evt->nodePath = path;
 
   diffs.push_back(evt);
 }
 
-void GraphUpdate::addNodeLabel(std::string nodeName, std::string ns, std::string name, std::string value)
+void GraphUpdate::addNodeLabel(std::string nodePath, std::string ns, std::string name, std::string value)
 {
   std::shared_ptr<AddNodeLabelEvent> evt = std::make_shared<AddNodeLabelEvent>();
   evt->changeID = lastConsistentChangeID + diffs.size() + 1;
-  evt->nodeName = nodeName;
+  evt->nodePath = nodePath;
   evt->annoNs = ns;
   evt->annoName = name;
   evt->annoValue = value;
@@ -55,11 +55,11 @@ void GraphUpdate::addNodeLabel(std::string nodeName, std::string ns, std::string
   diffs.push_back(evt);
 }
 
-void GraphUpdate::deleteNodeLabel(std::string nodeName, std::string ns, std::string name)
+void GraphUpdate::deleteNodeLabel(std::string nodePath, std::string ns, std::string name)
 {
    std::shared_ptr<DeleteNodeLabelEvent> evt = std::make_shared<DeleteNodeLabelEvent>();
    evt->changeID = lastConsistentChangeID + diffs.size() + 1;
-   evt->nodeName = nodeName;
+   evt->nodePath = nodePath;
    evt->annoNs = ns;
    evt->annoName = name;
 

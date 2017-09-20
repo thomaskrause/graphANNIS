@@ -458,7 +458,7 @@ public static final int
         return (AddNodeEvent)super.position(position);
     }
 
-   public native @StdString BytePointer nodeName(); public native AddNodeEvent nodeName(BytePointer nodeName);
+   public native @StdString BytePointer nodePath(); public native AddNodeEvent nodePath(BytePointer nodePath);
    public native @StdString BytePointer nodeType(); public native AddNodeEvent nodeType(BytePointer nodeType);
 }
 
@@ -476,7 +476,7 @@ public static final int
         return (DeleteNodeEvent)super.position(position);
     }
 
-   public native @StdString BytePointer nodeName(); public native DeleteNodeEvent nodeName(BytePointer nodeName);
+   public native @StdString BytePointer nodePath(); public native DeleteNodeEvent nodePath(BytePointer nodePath);
 }
 
 @Namespace("annis::api") @NoOffset public static class AddNodeLabelEvent extends Pointer {
@@ -493,7 +493,7 @@ public static final int
         return (AddNodeLabelEvent)super.position(position);
     }
 
-   public native @StdString BytePointer nodeName(); public native AddNodeLabelEvent nodeName(BytePointer nodeName);
+   public native @StdString BytePointer nodePath(); public native AddNodeLabelEvent nodePath(BytePointer nodePath);
    public native @StdString BytePointer annoNs(); public native AddNodeLabelEvent annoNs(BytePointer annoNs);
    public native @StdString BytePointer annoName(); public native AddNodeLabelEvent annoName(BytePointer annoName);
    public native @StdString BytePointer annoValue(); public native AddNodeLabelEvent annoValue(BytePointer annoValue);
@@ -513,7 +513,7 @@ public static final int
         return (DeleteNodeLabelEvent)super.position(position);
     }
 
-   public native @StdString BytePointer nodeName(); public native DeleteNodeLabelEvent nodeName(BytePointer nodeName);
+   public native @StdString BytePointer nodePath(); public native DeleteNodeLabelEvent nodePath(BytePointer nodePath);
    public native @StdString BytePointer annoNs(); public native DeleteNodeLabelEvent annoNs(BytePointer annoNs);
    public native @StdString BytePointer annoName(); public native DeleteNodeLabelEvent annoName(BytePointer annoName);
 }
@@ -631,50 +631,50 @@ public static final int
   private native void allocate();
 
   /**
-   * \brief Adds an empty node with the given name and type to the graph.
-   * If an node with this name already exists, nothing is done.
+   * \brief Adds an empty node with the given path and type to the graph.
+   * If an node with this path already exists, nothing is done.
    *
-   * @param name
+   * @param path
    * @param type The type, "node" per default.
    */
-  public native void addNode(@StdString BytePointer name, @StdString BytePointer type/*="node"*/);
-  public native void addNode(@StdString BytePointer name);
-  public native void addNode(@StdString String name, @StdString String type/*="node"*/);
-  public native void addNode(@StdString String name);
+  public native void addNode(@StdString BytePointer path, @StdString BytePointer type/*="node"*/);
+  public native void addNode(@StdString BytePointer path);
+  public native void addNode(@StdString String path, @StdString String type/*="node"*/);
+  public native void addNode(@StdString String path);
 
   /**
-   * \brief Delete a node with the give name from the graph.
+   * \brief Delete a node with the give path from the graph.
    *
    * This will delete all node labels as well. If this node does not exist, nothing is done.
    * @param name
    */
-  public native void deleteNode(@StdString BytePointer name);
-  public native void deleteNode(@StdString String name);
+  public native void deleteNode(@StdString BytePointer path);
+  public native void deleteNode(@StdString String path);
 
   /**
    * \brief Adds a label to an existing node.
    *
    * If the node does not exists or there is already a label with the same namespace and name, nothing is done.
    *
-   * @param nodeName
+   * @param nodePath
    * @param ns The namespace of the label
    * @param name
    * @param value
    */
-  public native void addNodeLabel(@StdString BytePointer nodeName, @StdString BytePointer ns, @StdString BytePointer name, @StdString BytePointer value);
-  public native void addNodeLabel(@StdString String nodeName, @StdString String ns, @StdString String name, @StdString String value);
+  public native void addNodeLabel(@StdString BytePointer nodePath, @StdString BytePointer ns, @StdString BytePointer name, @StdString BytePointer value);
+  public native void addNodeLabel(@StdString String nodePath, @StdString String ns, @StdString String name, @StdString String value);
 
   /**
    * \brief Delete an existing label from a node.
    *
    * If the node or the label does not exist, nothing is done.
    *
-   * @param nodeName
+   * @param nodePath
    * @param ns
    * @param name
    */
-  public native void deleteNodeLabel(@StdString BytePointer nodeName, @StdString BytePointer ns, @StdString BytePointer name);
-  public native void deleteNodeLabel(@StdString String nodeName, @StdString String ns, @StdString String name);
+  public native void deleteNodeLabel(@StdString BytePointer nodePath, @StdString BytePointer ns, @StdString BytePointer name);
+  public native void deleteNodeLabel(@StdString String nodePath, @StdString String ns, @StdString String name);
 
   public native void addEdge(@StdString BytePointer sourceNode, @StdString BytePointer targetNode,
                  @StdString BytePointer layer,

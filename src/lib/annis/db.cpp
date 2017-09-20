@@ -742,13 +742,16 @@ void DB::update(const api::GraphUpdate& u)
       {
          if(std::shared_ptr<api::AddNodeEvent> evt = std::dynamic_pointer_cast<api::AddNodeEvent>(change))
          {
-            auto existingNodeID = getNodeID(evt->nodeName);
+            auto existingNodeID = getNodeID(evt->nodePath);
             // only add node if it does not exist yet
             if(!existingNodeID)
             {
                nodeid_t newNodeID = nextFreeNodeID();
+
+               auto splitted = splitNodePath(evt->nodePath);
+
                Annotation newAnnoName =
-                  {getNodeNameStringID(), getNamespaceStringID(), strings.add(evt->nodeName)};
+                  {getNodeNameStringID(), getNamespaceStringID(), strings.add(splitted.second)};
                nodeAnnos.addAnnotation(newNodeID, newAnnoName);
 
                Annotation newAnnoType =
@@ -758,7 +761,7 @@ void DB::update(const api::GraphUpdate& u)
          }
          else if(std::shared_ptr<api::DeleteNodeEvent> evt = std::dynamic_pointer_cast<api::DeleteNodeEvent>(change))
          {
-            auto existingNodeID = getNodeID(evt->nodeName);
+            auto existingNodeID = getNodeID(evt->nodePath);
             if(existingNodeID)
             {
                // add all annotations
@@ -780,7 +783,7 @@ void DB::update(const api::GraphUpdate& u)
          }
          else if(std::shared_ptr<api::AddNodeLabelEvent> evt = std::dynamic_pointer_cast<api::AddNodeLabelEvent>(change))
          {
-            auto existingNodeID = getNodeID(evt->nodeName);
+            auto existingNodeID = getNodeID(evt->nodePath);
             if(existingNodeID)
             {
               Annotation anno = {strings.add(evt->annoName),
@@ -791,7 +794,7 @@ void DB::update(const api::GraphUpdate& u)
          }
          else if(std::shared_ptr<api::DeleteNodeLabelEvent> evt = std::dynamic_pointer_cast<api::DeleteNodeLabelEvent>(change))
          {
-            auto existingNodeID = getNodeID(evt->nodeName);
+            auto existingNodeID = getNodeID(evt->nodePath);
             if(existingNodeID)
             {
               AnnotationKey annoKey = {strings.add(evt->annoName),

@@ -51,30 +51,30 @@ struct UpdateEvent
 
 struct AddNodeEvent : UpdateEvent
 {
-   std::string nodeName;
+   std::string nodePath;
    std::string nodeType;
 
    template<class Archive>
    void serialize( Archive & ar )
    {
-      ar(cereal::base_class<UpdateEvent>(this), nodeName, nodeType);
+      ar(cereal::base_class<UpdateEvent>(this), nodePath, nodeType);
    }
 };
 
 struct DeleteNodeEvent : UpdateEvent
 {
-   std::string nodeName;
+   std::string nodePath;
 
    template<class Archive>
    void serialize( Archive & ar )
    {
-      ar(cereal::base_class<UpdateEvent>(this), nodeName);
+      ar(cereal::base_class<UpdateEvent>(this), nodePath);
    }
 };
 
 struct AddNodeLabelEvent : UpdateEvent
 {
-   std::string nodeName;
+   std::string nodePath;
    std::string annoNs;
    std::string annoName;
    std::string annoValue;
@@ -82,20 +82,20 @@ struct AddNodeLabelEvent : UpdateEvent
    template<class Archive>
    void serialize( Archive & ar )
    {
-      ar(cereal::base_class<UpdateEvent>(this), nodeName, annoNs, annoName, annoValue);
+      ar(cereal::base_class<UpdateEvent>(this), nodePath, annoNs, annoName, annoValue);
    }
 };
 
 struct DeleteNodeLabelEvent : UpdateEvent
 {
-   std::string nodeName;
+   std::string nodePath;
    std::string annoNs;
    std::string annoName;
 
    template<class Archive>
    void serialize( Archive & ar )
    {
-      ar(cereal::base_class<UpdateEvent>(this), nodeName, annoNs, annoName);
+      ar(cereal::base_class<UpdateEvent>(this), nodePath, annoNs, annoName);
    }
 };
 
@@ -185,44 +185,44 @@ public:
   GraphUpdate();
 
   /**
-   * @brief Adds an empty node with the given name and type to the graph.
-   * If an node with this name already exists, nothing is done.
+   * @brief Adds an empty node with the given path and type to the graph.
+   * If an node with this path already exists, nothing is done.
    *
-   * @param name
+   * @param path
    * @param type The type, "node" per default.
    */
-  void addNode(std::string name, std::string type="node");
+  void addNode(std::string path, std::string type="node");
 
   /**
-   * @brief Delete a node with the give name from the graph.
+   * @brief Delete a node with the give path from the graph.
    *
    * This will delete all node labels as well. If this node does not exist, nothing is done.
    * @param name
    */
-  void deleteNode(std::string name);
+  void deleteNode(std::string path);
 
   /**
    * @brief Adds a label to an existing node.
    *
    * If the node does not exists or there is already a label with the same namespace and name, nothing is done.
    *
-   * @param nodeName
+   * @param nodePath
    * @param ns The namespace of the label
    * @param name
    * @param value
    */
-  void addNodeLabel(std::string nodeName, std::string ns, std::string name, std::string value);
+  void addNodeLabel(std::string nodePath, std::string ns, std::string name, std::string value);
 
   /**
    * @brief Delete an existing label from a node.
    *
    * If the node or the label does not exist, nothing is done.
    *
-   * @param nodeName
+   * @param nodePath
    * @param ns
    * @param name
    */
-  void deleteNodeLabel(std::string nodeName, std::string ns, std::string name);
+  void deleteNodeLabel(std::string nodePath, std::string ns, std::string name);
 
   void addEdge(std::string sourceNode, std::string targetNode,
                std::string layer,
