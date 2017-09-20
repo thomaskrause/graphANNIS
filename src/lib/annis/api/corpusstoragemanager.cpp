@@ -270,6 +270,13 @@ std::vector<annis::api::Node> CorpusStorageManager::subgraph(std::string corpus,
         // remove the "salt:/" prefix
         sourceNodeID = sourceNodeID.substr(6);
       }
+
+      auto splittedSourceNodeID= DB::splitNodePath(sourceNodeID);
+
+      std::vector<std::string> docPath;
+      boost::split(docPath, splittedSourceNodeID.first, boost::is_any_of("/"), boost::token_compress_off);
+      sourceNodeID = splittedSourceNodeID.second;
+
       // left context
       {
         std::shared_ptr<SingleAlternativeQuery> qLeft = std::make_shared<SingleAlternativeQuery>(db);
@@ -281,6 +288,22 @@ std::vector<annis::api::Node> CorpusStorageManager::subgraph(std::string corpus,
         qLeft->addOperator(std::make_shared<Overlap>(db, db.f_getGraphStorage), nIdx, tokCoveredIdx);
         qLeft->addOperator(std::make_shared<Precedence>(db, db.f_getGraphStorage, 0, ctxLeft), tokPrecedenceIdx, tokCoveredIdx);
         qLeft->addOperator(std::make_shared<Overlap>(db, db.f_getGraphStorage), anyNodeIdx, tokPrecedenceIdx);
+
+        // add all (sub-) corpora to identify the source node
+        std::vector<size_t> docsIdx;
+        for(int i=0; i < docPath.size(); i++)
+        {
+          size_t idx = qLeft->addNode(std::make_shared<ExactAnnoValueSearch>(db, annis_ns, annis_node_name, docPath[i]));
+          if(i > 0)
+          {
+            qLeft->addOperator(std::make_shared<PartOfSubCorpus>(db.f_getGraphStorage, db, 1), idx, docsIdx[i-1]);
+          }
+          docsIdx.push_back(idx);
+        }
+        if(!docsIdx.empty())
+        {
+          qLeft->addOperator(std::make_shared<PartOfSubCorpus>(db.f_getGraphStorage, db, 1), nIdx, docsIdx[docsIdx.size()-1]);
+        }
 
         alts.push_back(qLeft);
       }
@@ -296,6 +319,22 @@ std::vector<annis::api::Node> CorpusStorageManager::subgraph(std::string corpus,
         qRight->addOperator(std::make_shared<Overlap>(db, db.f_getGraphStorage), nIdx, tokCoveredIdx);
         qRight->addOperator(std::make_shared<Precedence>(db, db.f_getGraphStorage, 0, ctxRight), tokCoveredIdx, tokPrecedenceIdx);
         qRight->addOperator(std::make_shared<Overlap>(db, db.f_getGraphStorage), anyNodeIdx, tokPrecedenceIdx);
+
+        // add all (sub-) corpora to identify the source node
+        std::vector<size_t> docsIdx;
+        for(int i=0; i < docPath.size(); i++)
+        {
+          size_t idx = qRight->addNode(std::make_shared<ExactAnnoValueSearch>(db, annis_ns, annis_node_name, docPath[i]));
+          if(i > 0)
+          {
+            qRight->addOperator(std::make_shared<PartOfSubCorpus>(db.f_getGraphStorage, db, 1), idx, docsIdx[i-1]);
+          }
+          docsIdx.push_back(idx);
+        }
+        if(!docsIdx.empty())
+        {
+          qRight->addOperator(std::make_shared<PartOfSubCorpus>(db.f_getGraphStorage, db, 1), nIdx, docsIdx[docsIdx.size()-1]);
+        }
 
         alts.push_back(qRight);
       }
