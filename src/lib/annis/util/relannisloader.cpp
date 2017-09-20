@@ -700,6 +700,10 @@ void RelANNISLoader::addSubCorpora(std::string toplevelCorpusName,
     std::string corpusName = corpusIDToName[corpusID];
     corpusAnnoList.push_back({{nodeID,  db.strings.add(annis_node_name), db.strings.add(annis_ns)},
                               db.strings.add(corpusName)});
+    // additionally to the "node_name" annotation also explictly add the "doc" annotation, so that
+    // the special ANNIS query meta::doc="..." works
+    corpusAnnoList.push_back({{nodeID,  db.strings.add("doc"), db.strings.add(annis_ns)},
+                                  db.strings.add(corpusName)});
     corpusAnnoList.push_back({{nodeID,  db.strings.add(annis_node_type), db.strings.add(annis_ns)},
                               db.strings.add("corpus")});
 
