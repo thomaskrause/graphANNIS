@@ -405,6 +405,10 @@ void JSONQueryParser::parseJoin(const DB& db,
             itLeft->second, itRight->second);
         }
       }
+      else if (op == "IdenticalNode")
+      {
+        q->addOperator(std::make_shared<IdenticalNode>(db), itLeft->second, itRight->second);
+      }
 
     }
 

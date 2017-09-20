@@ -33,6 +33,7 @@ import annis.model.QueryNode;
 import annis.model.QueryNode.TextMatching;
 import annis.sqlgen.model.CommonAncestor;
 import annis.sqlgen.model.Dominance;
+import annis.sqlgen.model.Identical;
 import annis.sqlgen.model.Inclusion;
 import annis.sqlgen.model.LeftDominance;
 import annis.sqlgen.model.Overlap;
@@ -258,6 +259,10 @@ public class QueryToJSON
     else if(join instanceof SameSpan)
     {
       node.put("op", "IdenticalCoverage");
+    }
+    else if(join instanceof Identical)
+    {
+      node.put("op", "IdenticalNode");
     }
     else
     {
