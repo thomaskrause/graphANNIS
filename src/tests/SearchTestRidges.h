@@ -135,7 +135,7 @@ TEST_F(SearchTestRidges, Benchmark1) {
   while(q->next() && counter < MAX_COUNT)
   {
     std::vector<Match> m = q->getCurrent();
-    HL_INFO(logger, (boost::format("match\t%1%\t%2%") % db.getNodeName(m[0].node) % db.getNodeName(m[1].node)).str());
+    HL_INFO(logger, (boost::format("match\t%1%\t%2%") % db.getNodePath(m[0].node) % db.getNodePath(m[1].node)).str());
     counter++;
   }
 
@@ -169,8 +169,8 @@ TEST_F(SearchTestRidges, PrecedenceMixedSpanTok) {
   while(q->next() && counter < 100u)
   {
     std::vector<Match> m = q->getCurrent();
-    HL_INFO(logger, (boost::format("Match %1%\t%2%\t%3%") % counter % db.getNodeName(m[0].node)
-                       % db.getNodeName(m[1].node)).str()) ;
+    HL_INFO(logger, (boost::format("Match %1%\t%2%\t%3%") % counter % db.getNodePath(m[0].node)
+                       % db.getNodePath(m[1].node)).str()) ;
     counter++;
   }
 
@@ -192,8 +192,8 @@ TEST_F(SearchTestRidges, NestedOverlap) {
   while(q.next())
   {
     auto m = q.getCurrent();
-    //HL_INFO(logger, (boost::format("Match %1%\t%2%\t%3%") % counter % db.getNodeName(m[0].node)
-    //                 % db.getNodeName(m[1].node)).str()) ;
+    //HL_INFO(logger, (boost::format("Match %1%\t%2%\t%3%") % counter % db.getNodePath(m[0].node)
+    //                 % db.getNodePath(m[1].node)).str()) ;
     counter++;
   }
 
@@ -211,8 +211,8 @@ TEST_F(SearchTestRidges, SeedOverlap) {
   while(q->next() && counter < MAX_COUNT)
   {
     auto m = q->getCurrent();
-    //HL_INFO(logger, (boost::format("Match %1%\t%2%\t%3%") % counter % db.getNodeName(m[0].node)
-    //                 % db.getNodeName(m[1].node)).str()) ;
+    //HL_INFO(logger, (boost::format("Match %1%\t%2%\t%3%") % counter % db.getNodePath(m[0].node)
+    //                 % db.getNodePath(m[1].node)).str()) ;
     counter++;
   }
 

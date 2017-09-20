@@ -77,7 +77,7 @@ TEST_F(LoadTest, NodeAnnotations) {
 
   EXPECT_STREQ(annis::annis_ns.c_str(), db.strings.str(annos[1].ns).c_str());
   EXPECT_STREQ("node_name", db.strings.str(annos[1].name).c_str());
-  EXPECT_STREQ("pcc2/4282#tok_13", db.strings.str(annos[1].val).c_str());
+  EXPECT_STREQ("tok_13", db.strings.str(annos[1].val).c_str());
 
   EXPECT_STREQ(annis::annis_ns.c_str(), db.strings.str(annos[3].ns).c_str());
   EXPECT_STREQ("layer", db.strings.str(annos[3].name).c_str());
@@ -231,8 +231,8 @@ TEST_F(LoadTest, Dom)
   {
     std::vector<Match> m = q.getCurrent();
     HL_INFO(logger, (boost::format("Match %1%\t%2%\t%3%\t%4%\t%5%")
-                     % counter % m[0].node % m[1].node % db.getNodeName(m[0].node)
-                     % db.getNodeName(m[1].node)).str()) ;
+                     % counter % m[0].node % m[1].node % db.getNodePath(m[0].node)
+                     % db.getNodePath(m[1].node)).str()) ;
     counter++;
   }
 
@@ -312,7 +312,7 @@ TEST_F(LoadTest, SecEdge) {
 TEST_F(LoadTest, NodesOfDocument) {
   SingleAlternativeQuery q(db);
 
-  auto n1 = q.addNode(std::make_shared<ExactAnnoValueSearch>(db, annis_ns, annis_node_name, "pcc2/11299"));
+  auto n1 = q.addNode(std::make_shared<ExactAnnoValueSearch>(db, annis_ns, annis_node_name, "11299"));
   auto n2 = q.addNode(std::make_shared<ExactAnnoValueSearch>(db, annis_ns, annis_node_type, "node"));
 
   q.addOperator(std::make_shared<PartOfSubCorpus>(db.f_getGraphStorage, db), n2, n1);
@@ -323,7 +323,7 @@ TEST_F(LoadTest, NodesOfDocument) {
     const std::vector<Match> m = q.getCurrent();
     ASSERT_EQ(2, m.size());
 
-    EXPECT_STREQ("pcc2/11299", db.getNodeName(m[0].node).c_str());
+    EXPECT_STREQ("pcc2/11299", db.getNodePath(m[0].node).c_str());
 
     counter++;
   }
@@ -344,7 +344,7 @@ TEST_F(LoadTest, NodesOfToplevelCorpus) {
     const std::vector<Match> m = q.getCurrent();
     ASSERT_EQ(2, m.size());
 
-    EXPECT_STREQ("pcc2", db.getNodeName(m[0].node).c_str());
+    EXPECT_STREQ("pcc2", db.getNodePath(m[0].node).c_str());
 
     counter++;
   }
@@ -365,7 +365,7 @@ TEST_F(LoadTest, DocumentAnno) {
     const std::vector<Match> m = q.getCurrent();
     ASSERT_EQ(2, m.size());
 
-    EXPECT_STREQ("pcc2/11299", db.getNodeName(m[0].node).c_str());
+    EXPECT_STREQ("pcc2/11299", db.getNodePath(m[0].node).c_str());
 
     counter++;
   }

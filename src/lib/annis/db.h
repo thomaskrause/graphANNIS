@@ -18,6 +18,7 @@
 
 #include <annis/annostorage.h>           // for AnnoStorage
 #include <annis/stringstorage.h>         // for StringStorage
+#include <annis/graphstorage/graphstorage.h>
 #include <annis/types.h>                 // for nodeid_t, Annotation, annis_ns
 #include <stddef.h>                      // for size_t
 #include <boost/container/flat_map.hpp>  // for flat_multimap
@@ -26,12 +27,12 @@
 #include <cstdint>                       // for uint32_t, uint64_t
 #include <map>                           // for map
 #include <memory>                        // for allocator_traits<>::value_type
+#include <sstream>
 #include <string>                        // for string, operator<<, char_traits
 #include <utility>                       // for pair
 #include <vector>                        // for vector
 #include <annis/graphstorageregistry.h>
 
-namespace annis { class WriteableGraphStorage; }  // lines 43-43
 namespace annis { namespace api { class GraphUpdate; } }  // lines 40-40
 
 namespace annis
@@ -49,17 +50,7 @@ public:
   bool load(std::string dir, bool preloadComponents=true);
   bool save(std::string dir);
 
-  inline std::string getNodeName(const nodeid_t &id) const
-  {
-    std::string result = "";
-
-    boost::optional<Annotation> anno = nodeAnnos.getAnnotations(strings, id, annis_ns, annis_node_name);
-    if(anno)
-    {
-      result = strings.str(anno->val);
-    }
-    return result;
-  }
+  std::string getNodePath(const nodeid_t &id) const;
 
   std::string getNodeType(const nodeid_t &id) const
   {
@@ -73,21 +64,7 @@ public:
     return result;
   }
 
-  inline boost::optional<nodeid_t> getNodeID(const std::string& nodeName) const
-  {
-    auto nodeNameID = strings.findID(nodeName);
-    if(nodeNameID)
-    {
-      auto it = nodeAnnos.inverseAnnotations.find(
-         {annisNodeNameStringID, annisNamespaceStringID, *nodeNameID});
-
-      if(it != nodeAnnos.inverseAnnotations.end())
-      {
-         return boost::optional<nodeid_t>(it->second);
-      }
-    }
-    return boost::optional<nodeid_t>();
-  }
+  inline boost::optional<nodeid_t> getNodeID(const std::string& path) const;
 
   std::string getNodeDebugName(const nodeid_t &id) const;
 
@@ -171,6 +148,18 @@ private:
   std::string gsInfo() const;
   std::string debugComponentString(const Component& c) const;
 
+  static std::pair<std::string,std::string> splitNodePath(const std::string& path)
+  {
+    const auto hashIdx = path.find_last_of('#');
+    if (std::string::npos == hashIdx)
+    {
+      return {path.substr(0, hashIdx), path.substr(hashIdx+1)};
+    }
+    else
+    {
+      return {path, ""};
+    }
+  }
 
 
 };

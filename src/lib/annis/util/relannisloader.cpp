@@ -230,7 +230,7 @@ bool RelANNISLoader::loadRelANNISNode(string dirPath,
         Annotation nodeNameAnno;
         nodeNameAnno.ns = db.strings.add(annis_ns);
         nodeNameAnno.name = db.strings.add(annis_node_name);
-        nodeNameAnno.val = db.strings.add(toplevelCorpusName + "/" + docName + "#" + line[4]);
+        nodeNameAnno.val = db.strings.add(line[4]);
         annoList.push_back(std::pair<NodeAnnotationKey, uint32_t>({nodeNr, nodeNameAnno.name, nodeNameAnno.ns }, nodeNameAnno.val));
 
 
@@ -681,6 +681,8 @@ void RelANNISLoader::addSubCorpora(std::string toplevelCorpusName,
   nodeid_t toplevelNodeID = nodeID++;
   corpusAnnoList.push_back({{toplevelNodeID, db.strings.add(annis_node_name), db.strings.add(annis_ns)},
                            db.strings.add(toplevelCorpusName)});
+  corpusAnnoList.push_back({{toplevelNodeID,  db.strings.add(annis_node_type), db.strings.add(annis_ns)},
+                            db.strings.add("corpus")});
   {
     // add all metadata for the top-level corpus node
     auto itAnnoMeta = corpusId2Annos.equal_range(corpusByPreOrder[0]);
@@ -696,10 +698,7 @@ void RelANNISLoader::addSubCorpora(std::string toplevelCorpusName,
     uint32_t corpusID = itCorpora->second;
     // add a node for the new (sub-) corpus/document
     std::string corpusName = corpusIDToName[corpusID];
-    std::string fullName = toplevelCorpusName + "/" + corpusName;
     corpusAnnoList.push_back({{nodeID,  db.strings.add(annis_node_name), db.strings.add(annis_ns)},
-                              db.strings.add(fullName)});
-    corpusAnnoList.push_back({{nodeID,  db.strings.add("doc"), db.strings.add(annis_ns)},
                               db.strings.add(corpusName)});
     corpusAnnoList.push_back({{nodeID,  db.strings.add(annis_node_type), db.strings.add(annis_ns)},
                               db.strings.add("corpus")});

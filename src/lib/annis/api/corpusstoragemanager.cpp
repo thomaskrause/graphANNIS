@@ -181,8 +181,8 @@ std::vector<std::string> CorpusStorageManager::find(std::vector<std::string> cor
                   << "::";
               }
 
-              // we expect that the document path including the corpus name is included in the node name
-              matchDesc << "salt:/" << db.getNodeName(n.node);
+              // we expect that the document path including the corpus name is included in the path
+              matchDesc << "salt:/" << db.getNodePath(n.node);
 
               if(i < m.size()-1)
               {

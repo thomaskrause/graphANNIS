@@ -167,10 +167,94 @@ bool DB::save(string dir)
   return true;
 }
 
+string DB::getNodePath(const nodeid_t &id) const
+{
+  std::stringstream result;
+
+
+  std::string type = getNodeType(id);
+  boost::optional<Annotation> anno = nodeAnnos.getAnnotations(strings, id, annis_ns, annis_node_name);
+
+
+  std::shared_ptr<const ReadableGraphStorage> gsPartOfSubCorpus;
+  {
+    Component corpusGraphComponent = {ComponentType::PART_OF_SUBCORPUS, annis_ns, ""};
+    auto itGS = graphStorages.find(corpusGraphComponent);
+    if(itGS!= graphStorages.end())
+    {
+      // we know that the subcorpus component is always loaded even without "preload" on
+      gsPartOfSubCorpus = itGS->second;
+    }
+  }
+
+  if(anno)
+  {
+    if(type == "node")
+    {
+      // get the path of the parent document
+      if(gsPartOfSubCorpus)
+      {
+        std::vector<nodeid_t> outEdges = gsPartOfSubCorpus->getOutgoingEdges(id);
+        if(!outEdges.empty())
+        {
+          std::string parentDocumentPath = getNodePath(outEdges[0]);
+          result << parentDocumentPath;
+        }
+      }
+      // append the actual node name
+      result << "#"  << strings.str(anno->val);
+    }
+    else if(type == "corpus")
+    {
+      // recursivly append the paths of the sub-corpora
+      if(gsPartOfSubCorpus)
+      {
+        std::vector<nodeid_t> outEdges = gsPartOfSubCorpus->getOutgoingEdges(id);
+        if(outEdges.empty())
+        {
+          // root corpus reached, abort recursin
+          result << strings.str(anno->val);
+        }
+        else
+        {
+          result << getNodePath(outEdges[0]) << "/" << strings.str(anno->val);
+        }
+      }
+    }
+  }
+
+  return result.str();
+}
+
+boost::optional<nodeid_t> DB::getNodeID(const string &path) const
+{
+  // HACK: this implementation just searches all nodes with the correct name and checks if the path matches
+  // which is potentially very ineffective. There should be some kind of index.
+
+  // split into subcorpus path and node name (get the fragment)
+  auto splittedPath = splitNodePath(path);
+
+  auto nodeNameID = strings.findID(splittedPath.second);
+  if(nodeNameID)
+  {
+    Annotation nodeNameAnno = {annisNodeNameStringID, annisNamespaceStringID, *nodeNameID};
+    for(auto it = nodeAnnos.inverseAnnotations.find(nodeNameAnno); it != nodeAnnos.inverseAnnotations.end(); it++)
+    {
+      // check if the corpus graph path matches
+      auto testPath = splitNodePath(getNodePath(it->second));
+      if(testPath.first == splittedPath.first)
+      {
+        return boost::optional<nodeid_t>(it->second);
+      }
+    }
+  }
+  return boost::optional<nodeid_t>();
+}
+
 std::string DB::getNodeDebugName(const nodeid_t &id) const
 {
   std::stringstream ss;
-  ss << getNodeName(id) << "(" << id << ")";
+  ss << getNodePath(id) << "(" << id << ")";
 
   return ss.str();
 }
@@ -219,7 +303,7 @@ void DB::loadGraphStorages(string dirPath, bool preloadComponents)
         // try to load the component with the empty name
         {
           Component emptyNameComponent = {(ComponentType) componentType,
-              layerPath.filename().string(), ""};
+                                          layerPath.filename().string(), ""};
 
           std::shared_ptr<ReadableGraphStorage> gsEmptyName;
 
@@ -228,7 +312,8 @@ void DB::loadGraphStorages(string dirPath, bool preloadComponents)
           // only load the graph storage with the empty name if there is data for it
           if(boost::filesystem::is_regular_file(inputFile))
           {
-            if(preloadComponents)
+            // always pre-load the PART_OF_SUBCORPUS edges so that the getNodePath() function can be const and still works
+            if(preloadComponents || (emptyNameComponent.type == ComponentType::PART_OF_SUBCORPUS))
             {
               HL_DEBUG(logger, (boost::format("loading component %1%")
                                % debugComponentString(emptyNameComponent)).str());
