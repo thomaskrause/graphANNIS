@@ -80,7 +80,7 @@ public:
   inline std::uint32_t getNodeNameStringID() const {return annisNodeNameStringID;}
   inline std::uint32_t getEmptyStringID() const {return annisEmptyStringID;}
   inline std::uint32_t getTokStringID() const {return annisTokStringID;}
-  inline std::uint32_t getCorpusPathID() const {return annisCorpusPathID;}
+  inline std::uint32_t getNodeContainerStringID() const {return annisNodeContainerStringID;}
 
   std::shared_ptr<annis::WriteableGraphStorage> createWritableGraphStorage(ComponentType type, const std::string& layer,
                        const std::string& name);
@@ -111,16 +111,7 @@ public:
     const auto hashIdx = path.find_last_of('#');
     if (std::string::npos == hashIdx)
     {
-      // if no fragment is present try to split with the last "/" character
-      const auto slashIdx = path.find_last_of('/');
-      if(std::string::npos == slashIdx)
-      {
-        return {"", path};
-      }
-      else
-      {
-        return {path.substr(0, slashIdx), path.substr(slashIdx+1)};
-      }
+      return {path, ""};
     }
     else
     {
@@ -147,7 +138,7 @@ private:
   std::uint32_t annisEmptyStringID;
   std::uint32_t annisTokStringID;
   std::uint32_t annisNodeNameStringID;
-  std::uint32_t annisCorpusPathID;
+  std::uint32_t annisNodeContainerStringID;
 
   /**
    * Map containing all available graph storages.

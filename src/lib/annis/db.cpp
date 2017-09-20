@@ -170,7 +170,7 @@ bool DB::save(string dir)
 string DB::getNodePath(const nodeid_t &id) const
 {
   std::string name = getNodeName(id);
-  boost::optional<Annotation> corpusPath = nodeAnnos.getAnnotations(strings, id, annis_ns, annis_corpus_path);
+  boost::optional<Annotation> corpusPath = nodeAnnos.getAnnotations(strings, id, annis_ns, annis_node_container);
 
   if(corpusPath)
   {
@@ -202,8 +202,8 @@ boost::optional<nodeid_t> DB::getNodeID(const string &path) const
     for(auto it = nodeAnnos.inverseAnnotations.find(nodeNameAnno); it != nodeAnnos.inverseAnnotations.end(); it++)
     {
       // check if the corpus graph path matches
-      boost::optional<Annotation> testPath = nodeAnnos.getAnnotations(strings, it->second, annis_ns, annis_corpus_path);
-      if(testPath && strings.str(testPath->val) == splittedPath.first)
+      boost::optional<Annotation> testContainer = nodeAnnos.getAnnotations(strings, it->second, annis_ns, annis_node_container);
+      if(testContainer && strings.str(testContainer->val) == splittedPath.first)
       {
         return boost::optional<nodeid_t>(it->second);
       }
@@ -236,7 +236,7 @@ void DB::addDefaultStrings()
   annisEmptyStringID = strings.add("");
   annisTokStringID = strings.add(annis_tok);
   annisNodeNameStringID = strings.add(annis_node_name);
-  annisCorpusPathID = strings.add(annis_corpus_path);
+  annisNodeContainerStringID = strings.add(annis_node_container);
 }
 
 void DB::loadGraphStorages(string dirPath, bool preloadComponents)
@@ -710,13 +710,15 @@ void DB::update(const api::GraphUpdate& u)
 
                auto splitted = splitNodePath(evt->nodePath);
 
+               Annotation newAnnoContainer =
+                  {getNodeContainerStringID(), getNamespaceStringID(), strings.add(splitted.first)};
+               nodeAnnos.addAnnotation(newNodeID, newAnnoContainer);
+
                Annotation newAnnoName =
                   {getNodeNameStringID(), getNamespaceStringID(), strings.add(splitted.second)};
                nodeAnnos.addAnnotation(newNodeID, newAnnoName);
 
-               Annotation newAnnoCorpusPath =
-                  {getCorpusPathID(), getNamespaceStringID(), strings.add(splitted.first)};
-               nodeAnnos.addAnnotation(newNodeID, newAnnoCorpusPath);
+
             }
          }
          else if(std::shared_ptr<api::DeleteNodeEvent> evt = std::dynamic_pointer_cast<api::DeleteNodeEvent>(change))

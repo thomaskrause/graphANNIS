@@ -280,7 +280,7 @@ std::vector<annis::api::Node> CorpusStorageManager::subgraph(std::string corpus,
       {
         std::shared_ptr<SingleAlternativeQuery> qLeft = std::make_shared<SingleAlternativeQuery>(db);
         size_t nIdx = qLeft->addNode(std::make_shared<ExactAnnoValueSearch>(db, annis_ns, annis_node_name, sourceNodeName));
-        size_t nContainerIdx = qLeft->addNode(std::make_shared<ExactAnnoValueSearch>(db, annis_ns, annis_corpus_path, sourceContainer));
+        size_t nContainerIdx = qLeft->addNode(std::make_shared<ExactAnnoValueSearch>(db, annis_ns, annis_node_container, sourceContainer));
         size_t tokCoveredIdx = qLeft->addNode(std::make_shared<ExactAnnoKeySearch>(db, annis_ns, annis_tok));
         size_t tokPrecedenceIdx = qLeft->addNode(std::make_shared<ExactAnnoKeySearch>(db, annis_ns, annis_tok));
         size_t anyNodeIdx = qLeft->addNode(std::make_shared<ExactAnnoKeySearch>(db, annis_ns, annis_node_name));
@@ -297,7 +297,7 @@ std::vector<annis::api::Node> CorpusStorageManager::subgraph(std::string corpus,
       {
         std::shared_ptr<SingleAlternativeQuery> qRight = std::make_shared<SingleAlternativeQuery>(db);
         size_t nIdx = qRight->addNode(std::make_shared<ExactAnnoValueSearch>(db, annis_ns, annis_node_name, sourceNodeName));
-        size_t nContainerIdx = qRight->addNode(std::make_shared<ExactAnnoValueSearch>(db, annis_ns, annis_corpus_path, sourceContainer));
+        size_t nContainerIdx = qRight->addNode(std::make_shared<ExactAnnoValueSearch>(db, annis_ns, annis_node_container, sourceContainer));
         size_t tokCoveredIdx = qRight->addNode(std::make_shared<ExactAnnoKeySearch>(db, annis_ns, annis_tok));
         size_t tokPrecedenceIdx = qRight->addNode(std::make_shared<ExactAnnoKeySearch>(db, annis_ns, annis_tok));
         size_t anyNodeIdx = qRight->addNode(std::make_shared<ExactAnnoKeySearch>(db, annis_ns, annis_node_name));
@@ -368,9 +368,10 @@ std::vector<Node> CorpusStorageManager::subcorpusGraph(std::string corpus, std::
       }
       {
         std::shared_ptr<SingleAlternativeQuery> q = std::make_shared<SingleAlternativeQuery>(db);
-        size_t corpusPathIdx = q->addNode(std::make_shared<ExactAnnoValueSearch>(db, annis_ns, annis_corpus_path, sourceCorpusID));
+        size_t containerIdx = q->addNode(std::make_shared<ExactAnnoValueSearch>(db, annis_ns, annis_node_container, sourceCorpusID));
         size_t anyNodeIdx = q->addNode(std::make_shared<ExactAnnoKeySearch>(db, annis_ns, annis_node_name));
-        q->addOperator(std::make_shared<IdenticalNode>(db), corpusPathIdx, anyNodeIdx);
+
+        q->addOperator(std::make_shared<PartOfSubCorpus>(db.f_getGraphStorage, db), anyNodeIdx, containerIdx);
 
 
         alts.push_back(q);

@@ -234,11 +234,11 @@ bool RelANNISLoader::loadRelANNISNode(string dirPath,
         annoList.push_back(std::pair<NodeAnnotationKey, uint32_t>({nodeNr, nodeNameAnno.name, nodeNameAnno.ns }, nodeNameAnno.val));
 
 
-        Annotation nodeCorpusPathAnno;
-        nodeCorpusPathAnno.ns = db.strings.add(annis_ns);
-        nodeCorpusPathAnno.name = db.strings.add(annis_corpus_path);
-        nodeCorpusPathAnno.val = db.strings.add(toplevelCorpusName + "/" + docName);
-        annoList.push_back(std::pair<NodeAnnotationKey, uint32_t>({nodeNr, nodeCorpusPathAnno.name, nodeCorpusPathAnno.ns }, nodeCorpusPathAnno.val));
+        Annotation nodeContainerAnno;
+        nodeContainerAnno.ns = db.strings.add(annis_ns);
+        nodeContainerAnno.name = db.strings.add(annis_node_container);
+        nodeContainerAnno.val = db.strings.add(toplevelCorpusName + "/" + docName);
+        annoList.push_back(std::pair<NodeAnnotationKey, uint32_t>({nodeNr, nodeContainerAnno.name, nodeContainerAnno.ns }, nodeContainerAnno.val));
 
         if(!layer.empty() && layer != "NULL")
         {
@@ -679,7 +679,7 @@ void RelANNISLoader::addSubCorpora(std::string toplevelCorpusName,
 
   // add the toplevel corpus as node
   nodeid_t toplevelNodeID = nodeID++;
-  corpusAnnoList.push_back({{toplevelNodeID,  db.strings.add(annis_corpus_path), db.strings.add(annis_ns)},
+  corpusAnnoList.push_back({{toplevelNodeID,  db.strings.add(annis_node_container), db.strings.add(annis_ns)},
                             db.strings.add(toplevelCorpusName)});
 
   {
@@ -702,7 +702,7 @@ void RelANNISLoader::addSubCorpora(std::string toplevelCorpusName,
     // the special ANNIS query meta::doc="..." works
     corpusAnnoList.push_back({{nodeID,  db.strings.add("doc"), db.strings.add(annis_ns)},
                                   db.strings.add(corpusName)});
-    corpusAnnoList.push_back({{nodeID,  db.strings.add(annis_corpus_path), db.strings.add(annis_ns)},
+    corpusAnnoList.push_back({{nodeID,  db.strings.add(annis_node_container), db.strings.add(annis_ns)},
                               db.strings.add(toplevelCorpusName + "/" + corpusName)});
 
     // add all metadata for the document node
