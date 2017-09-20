@@ -106,6 +106,29 @@ public:
 
   nodeid_t nextFreeNodeID() const;
 
+  static std::pair<std::string,std::string> splitNodePath(const std::string& path)
+  {
+    const auto hashIdx = path.find_last_of('#');
+    if (std::string::npos == hashIdx)
+    {
+      // if no fragment is present try to split with the last "/" character
+      const auto slashIdx = path.find_last_of('/');
+      if(std::string::npos == slashIdx)
+      {
+        return {"", path};
+      }
+      else
+      {
+        return {path.substr(0, slashIdx), path.substr(slashIdx+1)};
+      }
+    }
+    else
+    {
+
+      return {path.substr(0, hashIdx), path.substr(hashIdx+1)};
+    }
+  }
+
   virtual ~DB();
 public:
 
@@ -147,20 +170,6 @@ private:
   size_t estimateGraphStorageMemorySize() const;
   std::string gsInfo() const;
   std::string debugComponentString(const Component& c) const;
-
-  static std::pair<std::string,std::string> splitNodePath(const std::string& path)
-  {
-    const auto hashIdx = path.find_last_of('#');
-    if (std::string::npos == hashIdx)
-    {
-      return {path.substr(0, hashIdx), path.substr(hashIdx+1)};
-    }
-    else
-    {
-      return {path, ""};
-    }
-  }
-
 
 };
 
