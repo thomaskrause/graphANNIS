@@ -459,7 +459,6 @@ public static final int
     }
 
    public native @StdString BytePointer nodePath(); public native AddNodeEvent nodePath(BytePointer nodePath);
-   public native @StdString BytePointer nodeType(); public native AddNodeEvent nodeType(BytePointer nodeType);
 }
 
 @Namespace("annis::api") @NoOffset public static class DeleteNodeEvent extends Pointer {
@@ -631,15 +630,12 @@ public static final int
   private native void allocate();
 
   /**
-   * \brief Adds an empty node with the given path and type to the graph.
+   * \brief Adds an empty node with the given path to the graph.
    * If an node with this path already exists, nothing is done.
    *
-   * @param path
-   * @param type The type, "node" per default.
+   * @param path Path in the form root/sub/sub/doc#nodeName
    */
-  public native void addNode(@StdString BytePointer path, @StdString BytePointer type/*="node"*/);
   public native void addNode(@StdString BytePointer path);
-  public native void addNode(@StdString String path, @StdString String type/*="node"*/);
   public native void addNode(@StdString String path);
 
   /**
