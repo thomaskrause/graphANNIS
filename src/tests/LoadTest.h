@@ -269,7 +269,7 @@ TEST_F(LoadTest, RangedDom) {
 
   SingleAlternativeQuery q(db);
   auto n1 = q.addNode(std::make_shared<ExactAnnoValueSearch>(db, "tiger", "cat", "AP"));
-  auto n2 = q.addNode(std::make_shared<ExactAnnoValueSearch>(db, annis_ns, annis_node_type, "node"));
+  auto n2 = q.addNode(std::make_shared<ExactAnnoKeySearch>(db, annis_ns, annis_node_name));
 
   q.addOperator(std::make_shared<Dominance>("", db.f_getAllGraphStorages, db, 3, 5), n1, n2);
 
@@ -312,8 +312,8 @@ TEST_F(LoadTest, SecEdge) {
 TEST_F(LoadTest, NodesOfDocument) {
   SingleAlternativeQuery q(db);
 
-  auto n1 = q.addNode(std::make_shared<ExactAnnoValueSearch>(db, annis_ns, annis_node_name, "11299"));
-  auto n2 = q.addNode(std::make_shared<ExactAnnoValueSearch>(db, annis_ns, annis_node_type, "node"));
+  auto n1 = q.addNode(std::make_shared<ExactAnnoValueSearch>(db, annis_ns, annis_corpus_path, "pcc2/11299"));
+  auto n2 = q.addNode(std::make_shared<ExactAnnoKeySearch>(db, annis_ns, annis_node_name));
 
   q.addOperator(std::make_shared<PartOfSubCorpus>(db.f_getGraphStorage, db), n2, n1);
 
@@ -333,7 +333,7 @@ TEST_F(LoadTest, NodesOfDocument) {
 TEST_F(LoadTest, NodesOfToplevelCorpus) {
   SingleAlternativeQuery q(db);
 
-  auto n1 = q.addNode(std::make_shared<ExactAnnoValueSearch>(db, annis_ns, annis_node_name, "pcc2"));
+  auto n1 = q.addNode(std::make_shared<ExactAnnoValueSearch>(db, annis_ns, annis_corpus_path, "pcc2"));
   auto n2 = q.addNode(std::make_shared<ExactAnnoKeySearch>(db, annis_ns, annis_tok));
 
   q.addOperator(std::make_shared<PartOfSubCorpus>(db.f_getGraphStorage, db), n2, n1);

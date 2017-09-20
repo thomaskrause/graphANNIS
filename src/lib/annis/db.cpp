@@ -169,61 +169,22 @@ bool DB::save(string dir)
 
 string DB::getNodePath(const nodeid_t &id) const
 {
-  std::stringstream result;
+  std::string name = getNodeName(id);
+  boost::optional<Annotation> corpusPath = nodeAnnos.getAnnotations(strings, id, annis_ns, annis_corpus_path);
 
-
-  std::string type = getNodeType(id);
-  boost::optional<Annotation> anno = nodeAnnos.getAnnotations(strings, id, annis_ns, annis_node_name);
-
-
-  std::shared_ptr<const ReadableGraphStorage> gsPartOfSubCorpus;
+  if(corpusPath)
   {
-    Component corpusGraphComponent = {ComponentType::PART_OF_SUBCORPUS, annis_ns, ""};
-    auto itGS = graphStorages.find(corpusGraphComponent);
-    if(itGS!= graphStorages.end())
+    if(name.empty())
     {
-      // we know that the subcorpus component is always loaded even without "preload" on
-      gsPartOfSubCorpus = itGS->second;
+      return strings.str(corpusPath->val);
+    }
+    else
+    {
+      return strings.str(corpusPath->val) + "#" + name;
     }
   }
 
-  if(anno)
-  {
-    if(type == "node")
-    {
-      // get the path of the parent document
-      if(gsPartOfSubCorpus)
-      {
-        std::vector<nodeid_t> outEdges = gsPartOfSubCorpus->getOutgoingEdges(id);
-        if(!outEdges.empty())
-        {
-          std::string parentDocumentPath = getNodePath(outEdges[0]);
-          result << parentDocumentPath;
-        }
-      }
-      // append the actual node name
-      result << "#"  << strings.str(anno->val);
-    }
-    else if(type == "corpus")
-    {
-      // recursivly append the paths of the sub-corpora
-      if(gsPartOfSubCorpus)
-      {
-        std::vector<nodeid_t> outEdges = gsPartOfSubCorpus->getOutgoingEdges(id);
-        if(outEdges.empty())
-        {
-          // root corpus reached, abort recursin
-          result << strings.str(anno->val);
-        }
-        else
-        {
-          result << getNodePath(outEdges[0]) << "/" << strings.str(anno->val);
-        }
-      }
-    }
-  }
-
-  return result.str();
+  return "";
 }
 
 boost::optional<nodeid_t> DB::getNodeID(const string &path) const
@@ -241,8 +202,8 @@ boost::optional<nodeid_t> DB::getNodeID(const string &path) const
     for(auto it = nodeAnnos.inverseAnnotations.find(nodeNameAnno); it != nodeAnnos.inverseAnnotations.end(); it++)
     {
       // check if the corpus graph path matches
-      auto testPath = splitNodePath(getNodePath(it->second));
-      if(testPath.first == splittedPath.first)
+      boost::optional<Annotation> testPath = nodeAnnos.getAnnotations(strings, it->second, annis_ns, annis_corpus_path);
+      if(testPath && strings.str(testPath->val) == splittedPath.first)
       {
         return boost::optional<nodeid_t>(it->second);
       }
@@ -275,7 +236,7 @@ void DB::addDefaultStrings()
   annisEmptyStringID = strings.add("");
   annisTokStringID = strings.add(annis_tok);
   annisNodeNameStringID = strings.add(annis_node_name);
-  annisNodeTypeID = strings.add(annis_node_type);
+  annisCorpusPathID = strings.add(annis_corpus_path);
 }
 
 void DB::loadGraphStorages(string dirPath, bool preloadComponents)
@@ -754,9 +715,9 @@ void DB::update(const api::GraphUpdate& u)
                   {getNodeNameStringID(), getNamespaceStringID(), strings.add(splitted.second)};
                nodeAnnos.addAnnotation(newNodeID, newAnnoName);
 
-               Annotation newAnnoType =
-                  {getNodeTypeStringID(), getNamespaceStringID(), strings.add(evt->nodeType)};
-               nodeAnnos.addAnnotation(newNodeID, newAnnoType);
+               Annotation newAnnoCorpusPath =
+                  {getCorpusPathID(), getNamespaceStringID(), strings.add(splitted.first)};
+               nodeAnnos.addAnnotation(newNodeID, newAnnoCorpusPath);
             }
          }
          else if(std::shared_ptr<api::DeleteNodeEvent> evt = std::dynamic_pointer_cast<api::DeleteNodeEvent>(change))

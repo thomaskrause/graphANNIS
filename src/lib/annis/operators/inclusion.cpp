@@ -33,7 +33,7 @@ using namespace annis;
 
 Inclusion::Inclusion(const DB &db, DB::GetGSFuncT getGSFunc)
   : db(db),
-    anyNodeAnno(Init::initAnnotation(db.getNodeTypeStringID(), 0, db.getNamespaceStringID())),
+    anyNodeAnno(Init::initAnnotation(db.getNodeNameStringID(), 0, db.getNamespaceStringID())),
     tokHelper(getGSFunc, db)
 {
   gsOrder = getGSFunc(ComponentType::ORDERING, annis_ns, "");

@@ -24,12 +24,11 @@ GraphUpdate::GraphUpdate()
 {
 }
 
-void GraphUpdate::addNode(std::string path, std::string type)
+void GraphUpdate::addNode(std::string path)
 {
   std::shared_ptr<AddNodeEvent> evt = std::make_shared<AddNodeEvent>();
   evt->changeID = lastConsistentChangeID + diffs.size() + 1;
   evt->nodePath = path;
-  evt->nodeType = type;
 
   diffs.push_back(evt);
 }

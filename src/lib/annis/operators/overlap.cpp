@@ -28,7 +28,7 @@
 using namespace annis;
 
 Overlap::Overlap(const DB &db, DB::GetGSFuncT getGraphStorageFunc)
-  : tokHelper(getGraphStorageFunc, db), anyNodeAnno(Init::initAnnotation(db.getNodeTypeStringID(), 0, db.getNamespaceStringID()))
+  : tokHelper(getGraphStorageFunc, db), anyNodeAnno(Init::initAnnotation(db.getNodeNameStringID(), 0, db.getNamespaceStringID()))
 {
   gsOrder = getGraphStorageFunc(ComponentType::ORDERING, annis_ns, "");
   gsCoverage = getGraphStorageFunc(ComponentType::COVERAGE, annis_ns, "");

@@ -289,7 +289,7 @@ void Console::find(const std::vector<std::string> &args)
           {
             const auto& n = m[i];
 
-            if(db->getNodeType(n.node) == "node")
+            if(!db->getNodeName(n.node).empty())
             {
               outputMatches.push_back(n);
             }

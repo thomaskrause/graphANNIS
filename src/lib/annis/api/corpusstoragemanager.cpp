@@ -51,6 +51,7 @@
 #include <annis/operators/overlap.h>
 #include <annis/operators/precedence.h>
 #include <annis/operators/partofsubcorpus.h>
+#include <annis/operators/identicalnode.h>
 
 #include <functional>
 
@@ -171,7 +172,7 @@ std::vector<std::string> CorpusStorageManager::find(std::vector<std::string> cor
             const Match& n = m[i];
 
 
-            if(db.getNodeType(n.node) == "node")
+            if(!db.getNodeName(n.node).empty())
             {
               if(n.anno.ns != 0 && n.anno.name != 0
                  && n.anno.ns != db.getNamespaceStringID() && n.anno.name != db.getNodeNameStringID())
@@ -283,7 +284,7 @@ std::vector<annis::api::Node> CorpusStorageManager::subgraph(std::string corpus,
         size_t nIdx = qLeft->addNode(std::make_shared<ExactAnnoValueSearch>(db, annis_ns, annis_node_name, sourceNodeID));
         size_t tokCoveredIdx = qLeft->addNode(std::make_shared<ExactAnnoKeySearch>(db, annis_ns, annis_tok));
         size_t tokPrecedenceIdx = qLeft->addNode(std::make_shared<ExactAnnoKeySearch>(db, annis_ns, annis_tok));
-        size_t anyNodeIdx = qLeft->addNode(std::make_shared<ExactAnnoValueSearch>(db, annis_ns, annis_node_type, "node"));
+        size_t anyNodeIdx = qLeft->addNode(std::make_shared<ExactAnnoKeySearch>(db, annis_ns, annis_node_name));
 
         qLeft->addOperator(std::make_shared<Overlap>(db, db.f_getGraphStorage), nIdx, tokCoveredIdx);
         qLeft->addOperator(std::make_shared<Precedence>(db, db.f_getGraphStorage, 0, ctxLeft), tokPrecedenceIdx, tokCoveredIdx);
@@ -314,7 +315,7 @@ std::vector<annis::api::Node> CorpusStorageManager::subgraph(std::string corpus,
         size_t nIdx = qRight->addNode(std::make_shared<ExactAnnoValueSearch>(db, annis_ns, annis_node_name, sourceNodeID));
         size_t tokCoveredIdx = qRight->addNode(std::make_shared<ExactAnnoKeySearch>(db, annis_ns, annis_tok));
         size_t tokPrecedenceIdx = qRight->addNode(std::make_shared<ExactAnnoKeySearch>(db, annis_ns, annis_tok));
-        size_t anyNodeIdx = qRight->addNode(std::make_shared<ExactAnnoValueSearch>(db, annis_ns, annis_node_type, "node"));
+        size_t anyNodeIdx = qRight->addNode(std::make_shared<ExactAnnoKeySearch>(db, annis_ns, annis_node_name));
 
         qRight->addOperator(std::make_shared<Overlap>(db, db.f_getGraphStorage), nIdx, tokCoveredIdx);
         qRight->addOperator(std::make_shared<Precedence>(db, db.f_getGraphStorage, 0, ctxRight), tokCoveredIdx, tokPrecedenceIdx);
@@ -397,10 +398,10 @@ std::vector<Node> CorpusStorageManager::subcorpusGraph(std::string corpus, std::
       }
       {
         std::shared_ptr<SingleAlternativeQuery> q = std::make_shared<SingleAlternativeQuery>(db);
-        size_t corpusIdx = q->addNode(std::make_shared<ExactAnnoValueSearch>(db, annis_ns, annis_node_name, sourceCorpusID));
-        size_t anyNodeIdx = q->addNode(std::make_shared<ExactAnnoValueSearch>(db, annis_ns, annis_node_type, "node"));
+        size_t corpusPathIdx = q->addNode(std::make_shared<ExactAnnoValueSearch>(db, annis_ns, annis_corpus_path, sourceCorpusID));
+        size_t anyNodeIdx = q->addNode(std::make_shared<ExactAnnoKeySearch>(db, annis_ns, annis_node_name));
+        q->addOperator(std::make_shared<IdenticalNode>(db), corpusPathIdx, anyNodeIdx);
 
-        q->addOperator(std::make_shared<PartOfSubCorpus>(db.f_getGraphStorage, db), corpusIdx, anyNodeIdx);
 
         alts.push_back(q);
       }

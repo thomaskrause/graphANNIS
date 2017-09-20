@@ -52,12 +52,11 @@ struct UpdateEvent
 struct AddNodeEvent : UpdateEvent
 {
    std::string nodePath;
-   std::string nodeType;
 
    template<class Archive>
    void serialize( Archive & ar )
    {
-      ar(cereal::base_class<UpdateEvent>(this), nodePath, nodeType);
+      ar(cereal::base_class<UpdateEvent>(this), nodePath);
    }
 };
 
@@ -185,13 +184,12 @@ public:
   GraphUpdate();
 
   /**
-   * @brief Adds an empty node with the given path and type to the graph.
+   * @brief Adds an empty node with the given path to the graph.
    * If an node with this path already exists, nothing is done.
    *
-   * @param path
-   * @param type The type, "node" per default.
+   * @param path Path in the form root/sub/sub/doc#nodeName
    */
-  void addNode(std::string path, std::string type="node");
+  void addNode(std::string path);
 
   /**
    * @brief Delete a node with the give path from the graph.

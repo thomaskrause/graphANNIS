@@ -56,7 +56,7 @@ size_t SingleAlternativeQuery::addNode(std::shared_ptr<EstimatedSearch> n, bool 
 
   if(wrapAnyNodeAnno)
   {
-    Annotation constAnno = {db.getNodeTypeStringID(), db.getNamespaceStringID(), 0};
+    Annotation constAnno = {db.getNodeNameStringID(), db.getNamespaceStringID(), 0};
     n->setConstAnnoValue(constAnno);
   }
 

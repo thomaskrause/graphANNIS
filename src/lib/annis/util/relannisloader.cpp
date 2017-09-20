@@ -234,11 +234,11 @@ bool RelANNISLoader::loadRelANNISNode(string dirPath,
         annoList.push_back(std::pair<NodeAnnotationKey, uint32_t>({nodeNr, nodeNameAnno.name, nodeNameAnno.ns }, nodeNameAnno.val));
 
 
-        Annotation nodeTypeAnno;
-        nodeTypeAnno.ns = db.strings.add(annis_ns);
-        nodeTypeAnno.name = db.strings.add(annis_node_type);
-        nodeTypeAnno.val = db.strings.add("node");
-        annoList.push_back(std::pair<NodeAnnotationKey, uint32_t>({nodeNr, nodeTypeAnno.name, nodeTypeAnno.ns }, nodeTypeAnno.val));
+        Annotation nodeCorpusPathAnno;
+        nodeCorpusPathAnno.ns = db.strings.add(annis_ns);
+        nodeCorpusPathAnno.name = db.strings.add(annis_corpus_path);
+        nodeCorpusPathAnno.val = db.strings.add(toplevelCorpusName + "/" + docName);
+        annoList.push_back(std::pair<NodeAnnotationKey, uint32_t>({nodeNr, nodeCorpusPathAnno.name, nodeCorpusPathAnno.ns }, nodeCorpusPathAnno.val));
 
         if(!layer.empty() && layer != "NULL")
         {
@@ -679,10 +679,9 @@ void RelANNISLoader::addSubCorpora(std::string toplevelCorpusName,
 
   // add the toplevel corpus as node
   nodeid_t toplevelNodeID = nodeID++;
-  corpusAnnoList.push_back({{toplevelNodeID, db.strings.add(annis_node_name), db.strings.add(annis_ns)},
-                           db.strings.add(toplevelCorpusName)});
-  corpusAnnoList.push_back({{toplevelNodeID,  db.strings.add(annis_node_type), db.strings.add(annis_ns)},
-                            db.strings.add("corpus")});
+  corpusAnnoList.push_back({{toplevelNodeID,  db.strings.add(annis_corpus_path), db.strings.add(annis_ns)},
+                            db.strings.add(toplevelCorpusName)});
+
   {
     // add all metadata for the top-level corpus node
     auto itAnnoMeta = corpusId2Annos.equal_range(corpusByPreOrder[0]);
@@ -698,14 +697,13 @@ void RelANNISLoader::addSubCorpora(std::string toplevelCorpusName,
     uint32_t corpusID = itCorpora->second;
     // add a node for the new (sub-) corpus/document
     std::string corpusName = corpusIDToName[corpusID];
-    corpusAnnoList.push_back({{nodeID,  db.strings.add(annis_node_name), db.strings.add(annis_ns)},
-                              db.strings.add(corpusName)});
+
     // additionally to the "node_name" annotation also explictly add the "doc" annotation, so that
     // the special ANNIS query meta::doc="..." works
     corpusAnnoList.push_back({{nodeID,  db.strings.add("doc"), db.strings.add(annis_ns)},
                                   db.strings.add(corpusName)});
-    corpusAnnoList.push_back({{nodeID,  db.strings.add(annis_node_type), db.strings.add(annis_ns)},
-                              db.strings.add("corpus")});
+    corpusAnnoList.push_back({{nodeID,  db.strings.add(annis_corpus_path), db.strings.add(annis_ns)},
+                              db.strings.add(toplevelCorpusName + "/" + corpusName)});
 
     // add all metadata for the document node
     auto itAnnoMeta = corpusId2Annos.equal_range(corpusID);

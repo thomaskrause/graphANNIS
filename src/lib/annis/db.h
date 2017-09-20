@@ -52,11 +52,11 @@ public:
 
   std::string getNodePath(const nodeid_t &id) const;
 
-  std::string getNodeType(const nodeid_t &id) const
+  std::string getNodeName(const nodeid_t &id) const
   {
     std::string result = "";
 
-    boost::optional<Annotation> anno = nodeAnnos.getAnnotations(strings, id, annis_ns, annis_node_type);
+    boost::optional<Annotation> anno = nodeAnnos.getAnnotations(strings, id, annis_ns, annis_node_name);
     if(anno)
     {
       result = strings.str(anno->val);
@@ -80,7 +80,7 @@ public:
   inline std::uint32_t getNodeNameStringID() const {return annisNodeNameStringID;}
   inline std::uint32_t getEmptyStringID() const {return annisEmptyStringID;}
   inline std::uint32_t getTokStringID() const {return annisTokStringID;}
-  inline std::uint32_t getNodeTypeStringID() const {return annisNodeTypeID;}
+  inline std::uint32_t getCorpusPathID() const {return annisCorpusPathID;}
 
   std::shared_ptr<annis::WriteableGraphStorage> createWritableGraphStorage(ComponentType type, const std::string& layer,
                        const std::string& name);
@@ -147,7 +147,7 @@ private:
   std::uint32_t annisEmptyStringID;
   std::uint32_t annisTokStringID;
   std::uint32_t annisNodeNameStringID;
-  std::uint32_t annisNodeTypeID;
+  std::uint32_t annisCorpusPathID;
 
   /**
    * Map containing all available graph storages.
