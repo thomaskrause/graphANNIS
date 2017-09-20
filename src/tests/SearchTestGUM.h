@@ -235,7 +235,7 @@ TEST_F(SearchTestGUM, coffee)
     //check that the positions are correct
     EXPECT_STREQ("infstat", db.strings.str(m[0].anno.name).c_str());
     EXPECT_STREQ("entity", db.strings.str(m[1].anno.name).c_str());
-    EXPECT_STREQ("node_type", db.strings.str(m[2].anno.name).c_str());
+    EXPECT_STREQ("node_name", db.strings.str(m[2].anno.name).c_str());
     counter++;
   }
 
