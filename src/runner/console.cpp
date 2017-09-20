@@ -299,7 +299,7 @@ void Console::find(const std::vector<std::string> &args)
           {
             const auto& n = outputMatches[i];
             std::cout << db->getNodeDebugName(n.node);
-            if(n.anno.ns != 0 && n.anno.name != 0)
+            if(n.anno.ns != db->getNamespaceStringID() || n.anno.name != db->getNodeNameStringID())
             {
               std::cout << " " << db->strings.str(n.anno.ns)
                 << "::" << db->strings.str(n.anno.name);
