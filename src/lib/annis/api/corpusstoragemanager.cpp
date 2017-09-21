@@ -287,7 +287,7 @@ std::vector<annis::api::Node> CorpusStorageManager::subgraph(std::string corpus,
         size_t tokPrecedenceIdx = qLeft->addNode(std::make_shared<ExactAnnoKeySearch>(db, annis_ns, annis_tok));
         size_t anyNodeIdx = qLeft->addNode(std::make_shared<ExactAnnoKeySearch>(db, annis_ns, annis_node_name));
 
-        qLeft->addOperator(std::make_shared<PartOfSubCorpus>(db.f_getGraphStorage, db), nIdx, nContainerIdx);
+        qLeft->addOperator(std::make_shared<IdenticalNode>(db), nIdx, nContainerIdx);
         qLeft->addOperator(std::make_shared<Overlap>(db, db.f_getGraphStorage), nIdx, tokCoveredIdx);
         qLeft->addOperator(std::make_shared<Precedence>(db, db.f_getGraphStorage, 0, ctxLeft), tokPrecedenceIdx, tokCoveredIdx);
         qLeft->addOperator(std::make_shared<Overlap>(db, db.f_getGraphStorage), tokPrecedenceIdx, anyNodeIdx);
@@ -304,7 +304,7 @@ std::vector<annis::api::Node> CorpusStorageManager::subgraph(std::string corpus,
         size_t tokPrecedenceIdx = qRight->addNode(std::make_shared<ExactAnnoKeySearch>(db, annis_ns, annis_tok));
         size_t anyNodeIdx = qRight->addNode(std::make_shared<ExactAnnoKeySearch>(db, annis_ns, annis_node_name));
 
-        qRight->addOperator(std::make_shared<PartOfSubCorpus>(db.f_getGraphStorage, db), nIdx, nContainerIdx);
+        qRight->addOperator(std::make_shared<IdenticalNode>(db), nIdx, nContainerIdx);
         qRight->addOperator(std::make_shared<Overlap>(db, db.f_getGraphStorage), nIdx, tokCoveredIdx);
         qRight->addOperator(std::make_shared<Precedence>(db, db.f_getGraphStorage, 0, ctxRight), tokCoveredIdx, tokPrecedenceIdx);
         qRight->addOperator(std::make_shared<Overlap>(db, db.f_getGraphStorage), tokPrecedenceIdx, anyNodeIdx);
@@ -373,7 +373,7 @@ std::vector<Node> CorpusStorageManager::subcorpusGraph(std::string corpus, std::
         size_t containerIdx = q->addNode(std::make_shared<ExactAnnoValueSearch>(db, annis_ns, annis_node_container, sourceCorpusID));
         size_t anyNodeIdx = q->addNode(std::make_shared<ExactAnnoKeySearch>(db, annis_ns, annis_node_name));
 
-        q->addOperator(std::make_shared<PartOfSubCorpus>(db.f_getGraphStorage, db), anyNodeIdx, containerIdx);
+        q->addOperator(std::make_shared<IdenticalNode>(db), anyNodeIdx, containerIdx);
 
 
         alts.push_back(q);
