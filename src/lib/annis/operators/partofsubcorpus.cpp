@@ -43,23 +43,26 @@ PartOfSubCorpus::PartOfSubCorpus(DB::GetGSFuncT getGraphStorageFunc, const DB& d
 
 double PartOfSubCorpus::selectivity()
 {
-  double graphStorageSelectivity = 0.0;
-  const auto& stat = gs->getStatistics();
-  if(stat.valid)
+  double graphStorageSelectivity = 0.1;
+  if(gs)
   {
-    // We assume that normally the LHS of the join is a document and we
-    // always search for all connected actual annotation nodes.
-    // Thus we don't use the average fan-out (which includes the empty output edge lists of the annotation nodes
-    // and only use the max fan-out which gives a clearer picture how many nodes are included in a document at
-    // maxium.
-    std::uint32_t reachable = stat.maxFanOut;
-    graphStorageSelectivity = ((double) reachable ) / ((double) stat.nodes);
+    const auto& stat = gs->getStatistics();
+    if(stat.valid)
+    {
+      // We assume that normally the LHS of the join is a document and we
+      // always search for all connected actual annotation nodes.
+      // Thus we don't use the average fan-out (which includes the empty output edge lists of the annotation nodes
+      // and only use the max fan-out which gives a clearer picture how many nodes are included in a document at
+      // maxium.
+      std::uint32_t reachable = stat.maxFanOut;
+      graphStorageSelectivity = ((double) reachable ) / ((double) stat.nodes);
 
-  }
-  else
-  {
-     // assume a default selecivity for this graph storage operator
-     graphStorageSelectivity = 0.1;
+    }
+    else
+    {
+       // assume a default selecivity for this graph storage operator
+       graphStorageSelectivity = 0.1;
+    }
   }
 
   return graphStorageSelectivity;
